@@ -87,7 +87,7 @@
     const { GLTFLoader } = await import('./vendor/GLTFLoader.js');
     const loader = new GLTFLoader();
     try {
-      const gltf = await loader.loadAsync('./model/robot.glb');
+      const gltf = await loader.loadAsync('./model/robot-fast.glb');
       const model = gltf.scene;
       model.traverse((object) => {
         if (object.isMesh) {
@@ -100,7 +100,23 @@
       model.scale.setScalar(14.65);
       robot.add(model);
     } catch (error) {
-      console.warn('No se pudo cargar el robot GLB.', error);
+      console.warn('No se pudo cargar el robot optimizado; se intenta cargar el original.', error);
+      try {
+        const gltf = await loader.loadAsync('./model/robot.glb');
+        const model = gltf.scene;
+        model.traverse((object) => {
+          if (object.isMesh) {
+            object.castShadow = false;
+            object.receiveShadow = false;
+          }
+        });
+        model.rotation.set(0, Math.PI * -0.06, 0);
+        model.position.set(0.04, -0.2, 0.1);
+        model.scale.setScalar(14.65);
+        robot.add(model);
+      } catch (fallbackError) {
+        console.warn('No se pudo cargar el robot GLB.', fallbackError);
+      }
     }
 
     const orbits = new THREE.Group();
