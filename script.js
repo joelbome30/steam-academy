@@ -67,11 +67,11 @@
     scene.add(new THREE.HemisphereLight(0xf4ffe5, 0x26361b, 2));
     const key = new THREE.DirectionalLight(0xffffff, 4);
     key.position.set(-3, 6, 7); scene.add(key);
-    const rim = new THREE.DirectionalLight(0xbefe7e, 3);
+    const rim = new THREE.DirectionalLight(0x9ad8ff, 3);
     rim.position.set(4, 1, -3); scene.add(rim);
 
-    const lime = new THREE.MeshBasicMaterial({ color: 0xc5f277, toneMapped: false });
-    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc5f277, metalness: .55, roughness: .25, emissive: 0x5c822c, emissiveIntensity: .35 });
+    const lime = new THREE.MeshBasicMaterial({ color: 0x3aa0ff, toneMapped: false });
+    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0x3aa0ff, metalness: .55, roughness: .25, emissive: 0x1f7fcf, emissiveIntensity: .35 });
     const sphereGeometry = new THREE.SphereGeometry(1, 32, 22);
     function sphere(parent, material, scale, position) {
       const mesh = new THREE.Mesh(sphereGeometry, material);
@@ -86,8 +86,26 @@
 
     const { GLTFLoader } = await import('./vendor/GLTFLoader.js');
     const loader = new GLTFLoader();
+    const progressCircle = host.querySelector('.robot-progress-circle');
+    const progressText = host.querySelector('.robot-progress-text');
+    let modelLoaded = false;
+    function setProgress(p) {
+      const pct = Math.max(0, Math.min(100, Math.round(p || 0)));
+      if (progressCircle) progressCircle.setAttribute('stroke-dashoffset', String(100 - pct));
+      if (progressText) progressText.textContent = `Cargando ${pct}%`;
+    }
+    function loadModel(url) {
+      return new Promise((resolve, reject) => {
+        loader.load(url, gltf => resolve(gltf), xhr => {
+          if (xhr && xhr.lengthComputable) {
+            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+            setProgress(percent);
+          }
+        }, err => reject(err));
+      });
+    }
     try {
-      const gltf = await loader.loadAsync('./model/robot-fast.glb');
+      const gltf = await loadModel('./model/robot-fast.glb');
       const model = gltf.scene;
       model.traverse((object) => {
         if (object.isMesh) {
@@ -99,10 +117,13 @@
       model.position.set(0.04, -0.2, 0.1);
       model.scale.setScalar(14.65);
       robot.add(model);
+      modelLoaded = true;
+      setProgress(100);
+      host.classList.add('scene-ready');
     } catch (error) {
       console.warn('No se pudo cargar el robot optimizado; se intenta cargar el original.', error);
       try {
-        const gltf = await loader.loadAsync('./model/robot.glb');
+        const gltf = await loadModel('./model/robot.glb');
         const model = gltf.scene;
         model.traverse((object) => {
           if (object.isMesh) {
@@ -114,6 +135,9 @@
         model.position.set(0.04, -0.2, 0.1);
         model.scale.setScalar(14.65);
         robot.add(model);
+        modelLoaded = true;
+        setProgress(100);
+        host.classList.add('scene-ready');
       } catch (fallbackError) {
         console.warn('No se pudo cargar el robot GLB.', fallbackError);
       }
@@ -123,7 +147,7 @@
     orbits.rotation.set(.25, .12, -.35); scene.add(orbits);
     const orbit = new THREE.Mesh(new THREE.TorusGeometry(2.22, .012, 8, 160), ringMaterial);
     orbit.rotation.x = 1.07; orbit.position.y = -.75; orbits.add(orbit);
-    const orbit2 = new THREE.Mesh(new THREE.TorusGeometry(2.53, .004, 6, 160), new THREE.MeshBasicMaterial({ color: 0x91ae60, transparent: true, opacity: .28 }));
+    const orbit2 = new THREE.Mesh(new THREE.TorusGeometry(2.53, .004, 6, 160), new THREE.MeshBasicMaterial({ color: 0x6fbfff, transparent: true, opacity: .28 }));
     orbit2.rotation.set(.25, .9, .25); orbits.add(orbit2);
     const satellite = sphere(orbits, lime, [.085, .085, .085], [2.22, 0, 0]);
     const particlesGeometry = new THREE.BufferGeometry();
@@ -133,7 +157,7 @@
     const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
     for (let i = 0; i < 60; i++) positions.push((random() - .5) * 7, (random() - .5) * 6, -1.5 - random() * 2);
     particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    const particles = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ color: 0xc5f277, size: .018, transparent: true, opacity: .55 }));
+    const particles = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ color: 0x3aa0ff, size: .018, transparent: true, opacity: .55 }));
     scene.add(particles);
 
     let frame = 0, visible = true, lost = false, last = 0, elapsed = 0;
@@ -223,13 +247,17 @@
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', resize);
     new ResizeObserver(resize).observe(host);
-    new IntersectionObserver(entries => { visible = entries[0].isIntersecting; update(); }).observe(host);
+    const io = new IntersectionObserver(entries => {
+      visible = entries.some(e => e.isIntersecting);
+      update();
+    }, { root: null, rootMargin: '200px', threshold: 0.01 });
+    io.observe(host);
     reduced.addEventListener('change', update);
     document.addEventListener('visibilitychange', update);
     canvas.addEventListener('webglcontextlost', event => {
       event.preventDefault(); lost = true; cancelAnimationFrame(frame); host.classList.remove('scene-ready');
     });
     canvas.addEventListener('webglcontextrestored', () => { lost = false; host.classList.add('scene-ready'); resize(); update(); });
-    resize(); host.classList.add('scene-ready'); update();
+    resize(); update();
   }
 })();

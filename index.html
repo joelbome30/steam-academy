@@ -45,6 +45,13 @@
           <div class="scene-halo" aria-hidden="true"></div>
           <div class="robot-loading-art" aria-hidden="true">
             <img src="assets/model.png" alt="Robot de robótica" />
+            <div class="robot-progress" aria-hidden="true" role="status" aria-live="polite">
+              <svg class="robot-progress-svg" viewBox="0 0 36 36" aria-hidden="true">
+                <path class="robot-progress-bg" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831a15.9155 15.9155 0 1 1 0-31.831" fill="none" stroke-width="2.8"/>
+                <path class="robot-progress-circle" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831a15.9155 15.9155 0 1 1 0-31.831" fill="none" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+              </svg>
+              <span class="robot-progress-text">Cargando 0%</span>
+            </div>
           </div>
           <canvas id="robot-canvas" aria-hidden="true"></canvas>
           <span class="scene-cross cross-top" aria-hidden="true">+</span><span class="scene-cross cross-bottom" aria-hidden="true">+</span>
