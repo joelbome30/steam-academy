@@ -23,5 +23,6 @@ No se requiere instalar paquetes ni compilar. Para cargar el módulo 3D se debe 
 - `script.js`: menú móvil y escena 3D.
 - `assets/`: logotipo y fotografías. `estudiantes.png` pertenece a la primera propuesta y ya no se utiliza.
 - `vendor/`: Three.js 0.174.0 y su licencia.
+- `model/`: Modelo 3d .glb.
 
 Las fuentes se cargan desde Google Fonts, con alternativa del sistema. El logotipo, las fotografías y los textos proceden de https://www.steamacademy.com.co/; la licencia MIT incluida corresponde únicamente a Three.js.
