@@ -260,4 +260,25 @@
     canvas.addEventListener('webglcontextrestored', () => { lost = false; host.classList.add('scene-ready'); resize(); update(); });
     resize(); update();
   }
+
+  // Booking modal handlers
+  const openBooking = document.getElementById('open-booking');
+  const bookingModal = document.getElementById('booking-modal');
+  const bookingForm = document.getElementById('booking-form');
+  if (openBooking && bookingModal) {
+    const showModal = () => { bookingModal.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; }
+    const hideModal = () => { bookingModal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+    openBooking.addEventListener('click', e => { e.preventDefault(); showModal(); });
+    bookingModal.addEventListener('click', e => { if (e.target && e.target.dataset && e.target.dataset.close) hideModal(); });
+    bookingModal.querySelectorAll('.modal-close, [data-close]')?.forEach(btn => btn.addEventListener('click', hideModal));
+    bookingForm?.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(bookingForm);
+      // Simulate sending: show success
+      bookingForm.querySelector('#booking-success').hidden = false;
+      bookingForm.querySelectorAll('input,textarea,button').forEach(el => el.disabled = true);
+      // Optionally, close after a delay
+      setTimeout(() => { hideModal(); bookingForm.reset(); bookingForm.querySelector('#booking-success').hidden = true; bookingForm.querySelectorAll('input,textarea,button').forEach(el => el.disabled = false); }, 2200);
+    });
+  }
 })();
