@@ -42,8 +42,8 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     const camera = new THREE.PerspectiveCamera(37, 1, .1, 50);
-    camera.position.set(0, .15, 7.9);
-    camera.lookAt(0, .05, 0);
+    camera.position.set(0, .22, 8.4);
+    camera.lookAt(0, .08, 0);
 
     // Studio lighting is built locally; no remote environment maps are needed.
     const studio = new THREE.Scene();
@@ -81,7 +81,7 @@
       return mesh;
     }
     const robot = new THREE.Group();
-    robot.rotation.set(.06, -.22, -.10);
+    robot.rotation.set(.06, 0, -.05);
     scene.add(robot);
 
     const { GLTFLoader } = await import('./vendor/GLTFLoader.js');
@@ -95,9 +95,9 @@
           object.receiveShadow = false;
         }
       });
-      model.rotation.set(0, Math.PI * 0.12, 0);
-      model.position.set(0, -0.3, 0.1);
-      model.scale.setScalar(15.35);
+      model.rotation.set(0, Math.PI * -0.06, 0);
+      model.position.set(0.04, -0.2, 0.1);
+      model.scale.setScalar(14.65);
       robot.add(model);
     } catch (error) {
       console.warn('No se pudo cargar el robot GLB.', error);
@@ -125,7 +125,7 @@
       active: false,
       lastX: 0,
       lastY: 0,
-      yaw: -.22,
+      yaw: 0,
       pitch: .06,
       pointerId: null
     };
