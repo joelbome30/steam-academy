@@ -27,9 +27,12 @@
     document.querySelector('#robot-scene').classList.remove('scene-ready');
   });
 
-  function createScene(THREE) {
+  async function createScene(THREE) {
     const host = document.querySelector('#robot-scene');
     const canvas = document.querySelector('#robot-canvas');
+    host.style.touchAction = 'none';
+    host.style.userSelect = 'none';
+    canvas.style.touchAction = 'none';
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const scene = new THREE.Scene();
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
@@ -67,77 +70,37 @@
     const rim = new THREE.DirectionalLight(0xbefe7e, 3);
     rim.position.set(4, 1, -3); scene.add(rim);
 
-    const shell = new THREE.MeshPhysicalMaterial({ color: 0xe6eadb, metalness: .48, roughness: .22, clearcoat: 1, clearcoatRoughness: .16 });
-    const chrome = new THREE.MeshStandardMaterial({ color: 0x7b8a69, metalness: .95, roughness: .17 });
-    const faceMaterial = new THREE.MeshPhysicalMaterial({ color: 0x081009, metalness: .26, roughness: .22, clearcoat: 1 });
     const lime = new THREE.MeshBasicMaterial({ color: 0xc5f277, toneMapped: false });
     const ringMaterial = new THREE.MeshStandardMaterial({ color: 0xc5f277, metalness: .55, roughness: .25, emissive: 0x5c822c, emissiveIntensity: .35 });
+    const sphereGeometry = new THREE.SphereGeometry(1, 32, 22);
+    function sphere(parent, material, scale, position) {
+      const mesh = new THREE.Mesh(sphereGeometry, material);
+      mesh.scale.set(...scale);
+      mesh.position.set(...position);
+      parent.add(mesh);
+      return mesh;
+    }
     const robot = new THREE.Group();
     robot.rotation.set(.06, -.22, -.10);
     scene.add(robot);
 
-    function roundedBox(width, height, depth, radius, material) {
-      const shape = new THREE.Shape();
-      const x = -width / 2, y = -height / 2;
-      shape.moveTo(x + radius, y);
-      shape.lineTo(x + width - radius, y);
-      shape.quadraticCurveTo(x + width, y, x + width, y + radius);
-      shape.lineTo(x + width, y + height - radius);
-      shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      shape.lineTo(x + radius, y + height);
-      shape.quadraticCurveTo(x, y + height, x, y + height - radius);
-      shape.lineTo(x, y + radius);
-      shape.quadraticCurveTo(x, y, x + radius, y);
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth, bevelEnabled: true, bevelThickness: .07, bevelSize: .07, bevelSegments: 4, steps: 1, curveSegments: 18
+    const { GLTFLoader } = await import('./vendor/GLTFLoader.js');
+    const loader = new GLTFLoader();
+    try {
+      const gltf = await loader.loadAsync('./model/robot.glb');
+      const model = gltf.scene;
+      model.traverse((object) => {
+        if (object.isMesh) {
+          object.castShadow = false;
+          object.receiveShadow = false;
+        }
       });
-      geometry.translate(0, 0, -depth / 2);
-      geometry.computeVertexNormals();
-      return new THREE.Mesh(geometry, material);
-    }
-    const sphereGeometry = new THREE.SphereGeometry(1, 40, 28);
-    function sphere(parent, material, scale, position) {
-      const mesh = new THREE.Mesh(sphereGeometry, material);
-      mesh.scale.set(...scale); mesh.position.set(...position); parent.add(mesh); return mesh;
-    }
-    const head = new THREE.Group();
-    head.position.y = .66;
-    robot.add(head);
-    head.add(roundedBox(2.25, 1.5, .8, .43, shell));
-    const face = roundedBox(1.98, 1.12, .11, .35, faceMaterial);
-    face.position.set(0, -.015, .49); head.add(face);
-    const eyes = [];
-    for (const x of [-.44, .44]) {
-      const eye = sphere(head, lime, [.105, .19, .055], [x, .09, .64]);
-      eyes.push(eye);
-    }
-    const smilePoints = [];
-    for (let i = 0; i <= 12; i++) {
-      const x = -.21 + i * .035;
-      smilePoints.push(new THREE.Vector3(x, -.32 + x * x * 1.3, .652));
-    }
-    const smile = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(smilePoints), 24, .022, 8, false), lime);
-    head.add(smile);
-    for (const side of [-1, 1]) {
-      const ear = new THREE.Mesh(new THREE.CylinderGeometry(.23, .23, .17, 36), chrome);
-      ear.rotation.z = Math.PI / 2; ear.position.set(side * 1.23, .04, 0); head.add(ear);
-      sphere(head, lime, [.05, .10, .12], [side * 1.32, .04, .02]);
-    }
-    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(.028, .04, .42, 20), chrome);
-    antenna.position.set(0, .98, -.02); head.add(antenna);
-    sphere(head, lime, [.12, .12, .12], [0, 1.21, -.02]);
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(.24, .31, .26, 36), chrome);
-    neck.position.y = -.28; robot.add(neck);
-    sphere(robot, shell, [.68, .76, .53], [0, -.99, 0]);
-    const chest = new THREE.Mesh(new THREE.TorusGeometry(.15, .025, 12, 40), chrome);
-    chest.position.set(0, -.85, .52); robot.add(chest);
-    sphere(robot, lime, [.065, .065, .055], [0, -.85, .55]);
-    const arms = [];
-    for (const side of [-1, 1]) {
-      const arm = sphere(robot, shell, [.20, .42, .26], [side * .94, -.88, .02]);
-      arm.rotation.z = side * -.25; arms.push(arm);
-      sphere(robot, chrome, [.14, .14, .17], [side * .87, -.52, 0]);
-      sphere(robot, shell, [.24, .16, .33], [side * .34, -1.72, .12]);
+      model.rotation.set(0, Math.PI * 0.12, 0);
+      model.position.set(0, -0.3, 0.1);
+      model.scale.setScalar(15.35);
+      robot.add(model);
+    } catch (error) {
+      console.warn('No se pudo cargar el robot GLB.', error);
     }
 
     const orbits = new THREE.Group();
@@ -158,24 +121,30 @@
     scene.add(particles);
 
     let frame = 0, visible = true, lost = false, last = 0, elapsed = 0;
-    const target = { x: 0, y: 0 };
-    const smooth = { x: 0, y: 0 };
+    const drag = {
+      active: false,
+      lastX: 0,
+      lastY: 0,
+      yaw: -.22,
+      pitch: .06,
+      pointerId: null
+    };
     function render(time) {
       if (lost) return;
       const dt = Math.min((time - last) / 1000 || 0, .05); last = time;
       if (!reduced.matches) elapsed += dt;
       const t = reduced.matches ? 0 : elapsed;
-      const damping = 1 - Math.exp(-dt * 4);
-      smooth.x += (target.x - smooth.x) * damping;
-      smooth.y += (target.y - smooth.y) * damping;
-      robot.position.y = Math.sin(t * 1.3) * .1;
-      robot.rotation.y = -.22 + (reduced.matches ? 0 : smooth.x * .25);
-      head.rotation.y = reduced.matches ? 0 : smooth.x * .13;
-      head.rotation.x = reduced.matches ? 0 : -smooth.y * .10;
-      arms[0].rotation.z = .25 + Math.sin(t * 1.1) * .09;
-      arms[1].rotation.z = -.25 - Math.sin(t * 1.1) * .09;
-      const blink = t % 5.8;
-      for (const eye of eyes) eye.scale.y = !reduced.matches && blink > 5.5 ? .03 : .19;
+      const idleY = Math.sin(t * 1.3) * .1;
+      robot.position.y = idleY;
+      if (!drag.active) {
+        robot.rotation.y = drag.yaw + Math.sin(t * .7) * .12;
+        robot.rotation.x = drag.pitch + Math.cos(t * .8) * .04;
+        robot.rotation.z = -.10 + Math.sin(t * 1.1) * .03;
+      } else {
+        robot.rotation.y = drag.yaw;
+        robot.rotation.x = drag.pitch;
+        robot.rotation.z = -.10;
+      }
       satellite.position.set(2.22 * Math.cos(t * .35), 2.22 * Math.sin(t * .35) * Math.cos(1.07) - .75, 2.22 * Math.sin(t * .35) * Math.sin(1.07));
       orbits.rotation.y = .12 + Math.sin(t * .16) * .15;
       particles.rotation.y = t * .016;
@@ -202,13 +171,41 @@
       camera.updateProjectionMatrix();
       render(performance.now());
     }
-    document.querySelector('.hero').addEventListener('pointermove', event => {
-      if (reduced.matches || event.pointerType !== 'mouse') return;
-      const bounds = host.getBoundingClientRect();
-      target.x = Math.max(-1, Math.min(1, (event.clientX - bounds.left) / bounds.width * 2 - 1));
-      target.y = Math.max(-1, Math.min(1, (event.clientY - bounds.top) / bounds.height * 2 - 1));
-    }, { passive: true });
-    document.querySelector('.hero').addEventListener('pointerleave', () => { target.x = target.y = 0; });
+    const startDrag = event => {
+      if (reduced.matches) return;
+      drag.active = true;
+      drag.pointerId = event.pointerId ?? 'pointer';
+      drag.lastX = event.clientX;
+      drag.lastY = event.clientY;
+      event.preventDefault();
+      canvas.setPointerCapture?.(event.pointerId);
+    };
+    const moveDrag = event => {
+      if (!drag.active || reduced.matches) return;
+      if (typeof drag.pointerId === 'number' && typeof event.pointerId === 'number' && event.pointerId !== drag.pointerId) return;
+      const dx = event.clientX - drag.lastX;
+      const dy = event.clientY - drag.lastY;
+      drag.lastX = event.clientX;
+      drag.lastY = event.clientY;
+      drag.yaw += dx * 0.008;
+      drag.pitch += dy * 0.006;
+      drag.pitch = Math.max(-1.1, Math.min(1.1, drag.pitch));
+      event.preventDefault();
+    };
+    const stopDrag = event => {
+      if (event && typeof event.pointerId === 'number' && typeof drag.pointerId === 'number' && event.pointerId !== drag.pointerId) return;
+      drag.active = false;
+      drag.pointerId = null;
+    };
+    [host, canvas].forEach(target => {
+      target.addEventListener('pointerdown', startDrag);
+      target.addEventListener('pointermove', moveDrag, { passive: false });
+      target.addEventListener('pointerup', stopDrag);
+      target.addEventListener('pointercancel', stopDrag);
+      target.addEventListener('pointerleave', stopDrag);
+    });
+    window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
     new ResizeObserver(resize).observe(host);
     new IntersectionObserver(entries => { visible = entries[0].isIntersecting; update(); }).observe(host);
     reduced.addEventListener('change', update);
