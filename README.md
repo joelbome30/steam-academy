@@ -1,6 +1,6 @@
 # STEAM Academy — rediseño en progreso
 
-Trabajo pausado por petición del usuario el 4 de septiembre de 2026. Esta versión está en desarrollo y no debe considerarse un diseño terminado ni aprobado.
+Esta versión continúa en desarrollo y todavía no debe considerarse un diseño terminado ni aprobado.
 
 ## Objetivo y restricciones
 
@@ -23,9 +23,9 @@ La primera propuesta fue rechazada. Esta segunda propuesta cambia la composició
 ## Qué falta
 
 - [ ] Revisar y aprobar visualmente esta segunda propuesta con el usuario. La primera propuesta fue rechazada; esta aún no tiene aprobación.
-- [ ] Repetir la revisión final de escritorio y móvil después de los últimos ajustes al robot, las fotografías y el favicon. La última comprobación se interrumpió al pausar el trabajo.
+- [ ] Repetir la revisión final de escritorio y móvil después de los últimos ajustes al robot, las fotografías y el favicon.
 - [ ] Verificar la carga de todas las fotografías, incluidas las de carga diferida, y que la consola no registre errores. La primera pasada detectó un recurso 404; después se añadió un favicon, pero falta confirmar la revisión completa.
-- [ ] Comprobar visualmente la alternativa sin WebGL y la recuperación tras pérdida del contexto gráfico. El código existe, pero la prueba final quedó interrumpida.
+- [ ] Comprobar visualmente la alternativa sin WebGL y la recuperación tras pérdida del contexto gráfico.
 - [ ] Revisar navegación completa por teclado, lectores de pantalla, contraste y funcionamiento sin JavaScript.
 - [ ] Probar rendimiento y uso de memoria en un móvil real; las comprobaciones realizadas hasta ahora fueron en Chromium con tamaños de pantalla emulados.
 - [ ] Revisar los enlaces externos y confirmar destinos específicos de Game Developer y Developer Junior. Actualmente dirigen a la sección de experiencia; la portada oficial consultada no ofrecía enlaces específicos coherentes.
@@ -33,7 +33,7 @@ La primera propuesta fue rechazada. Esta segunda propuesta cambia la composició
 - [ ] Confirmar el flujo definitivo de inscripción. Actualmente se enlaza al formulario oficial; este proyecto no recibe datos ni registra inscripciones.
 - [ ] Definir el despliegue cuando el diseño esté aprobado. Subir el código a GitHub no sustituye ni actualiza el dominio oficial de Steam Academy.
 
-## Verificación realizada antes de pausar
+## Verificación realizada hasta ahora
 
 En la primera revisión automatizada de esta segunda propuesta:
 
