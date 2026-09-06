@@ -23,7 +23,7 @@
         <a href="https://www.steamacademy.com.co/blog">Blog <span aria-hidden="true">↗</span></a>
       </nav>
       <a class="nav-cta" href="#experiencia">Experiencia STEAM <span aria-hidden="true">↗</span></a>
-      <button class="menu-toggle" aria-label="Cursos" aria-controls="navigation" aria-expanded="false"><span></span><span></span></button>
+      <button class="menu-toggle" aria-label="Abrir menú" aria-controls="navigation" aria-expanded="false"><span></span><span></span></button>
     </header>
   <main>
   <div class="dark-stage" id="home">
@@ -106,23 +106,26 @@
   </section>
   </main>
     <!-- Booking modal -->
-    <div id="booking-modal" class="modal" aria-hidden="true" role="dialog" aria-label="Formulario de agendamiento">
+    <div id="booking-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Formulario de agendamiento">
       <div class="modal-backdrop" data-close="true"></div>
       <div class="modal-panel">
-        <button class="modal-close" aria-label="Cerrar">×</button>
-        <h3>Agende una Experiencia STEAM gratuita</h3>
-        <form id="booking-form">
-          <label>Nombre completo<br><input type="text" name="name" required></label>
-          <label>Correo electrónico<br><input type="email" name="email" required></label>
-          <label>Teléfono<br><input type="tel" name="phone"></label>
-          <label>Fecha preferida<br><input type="date" name="date"></label>
-          <label>Mensaje (opcional)<br><textarea name="message" rows="3"></textarea></label>
+        <div class="modal-orbit" aria-hidden="true"><span>STEAM</span><i></i><b></b></div>
+        <div class="modal-heading"><div><p class="modal-kicker"><span></span> Venga a conocer STEAM Academy</p><h3>Agende una<br><em>Experiencia STEAM</em><br>gratuita</h3></div><button class="modal-close" aria-label="Cerrar">×</button></div>
+        <div class="modal-layout">
+          <aside class="modal-aside"><span class="modal-aside-number">01</span><strong>Recorrido</strong><small>Conozca nuestros espacios</small><span class="modal-aside-line"></span><span class="modal-aside-number">02</span><strong>Actividad práctica</strong><small>Viva nuestra metodología</small><span class="modal-aside-line"></span><span class="modal-aside-number">03</span><strong>Orientación</strong><small>Encuentre la ruta indicada</small></aside>
+          <form id="booking-form">
+          <p class="modal-intro">El estudiante conoce la academia, participa en una actividad práctica y nuestro equipo le orienta sobre el programa más adecuado.</p>
+          <label>Nombre del estudiante<input type="text" name="name" required></label>
+          <div class="modal-row"><label>Edad<input type="number" name="age" min="5" max="99"></label><label>Teléfono<input type="tel" name="phone"></label></div>
+          <label>Correo electrónico<input type="email" name="email" required></label>
+          <label>¿En qué curso está interesad@?<select name="program"><option value=""></option><option>Robótica Maker</option><option>Héroes del Código</option><option>Game Developer</option><option>Developer Junior</option></select></label>
           <div class="form-actions">
-            <button type="submit" class="button button-lime button--sm">Enviar</button>
-            <button type="button" class="button secondary button--sm" data-close="true">Cancelar</button>
+            <button type="submit" class="button button-lime button--sm"><span>Enviar</span><span class="button-arrow">↗</span></button>
+            <button type="button" class="modal-cancel" data-close="true">Cerrar</button>
           </div>
-          <div id="booking-success" class="form-success" hidden>Gracias — recibimos tu solicitud. Te contactaremos pronto.</div>
-        </form>
+          <div id="booking-success" class="form-success" hidden><span class="success-mark">✓</span><strong>Inscripción recibida</strong><p>Venga a conocer STEAM Academy</p></div>
+          </form>
+        </div>
       </div>
     </div>
   <footer><div class="container"><div class="footer-top"><a class="brand" href="#home"><img src="assets/logo.png" width="175" height="64" alt="STEAM Academy" loading="lazy"></a><div><p>Nuestra direccion</p><a href="https://www.google.com/maps/search/?api=1&query=STEAM+Academy+Cra+41D+76-281+Barranquilla">Cra. 41D #76-281, Barranquilla, Atlántico. ↗</a></div><div><a href="tel:+573006388207">3006388207</a><a href="mailto:steamacademi@gmail.com">steamacademi@gmail.com</a></div><a class="back-top" href="#home" aria-label="Home">↑</a></div><div class="footer-bottom"><span>Copyright © STEAM Academy 2021 - Todos los derechos reservados</span><a href="https://www.steamacademy.com.co/">STEAM Academy ↗</a></div></div></footer>
