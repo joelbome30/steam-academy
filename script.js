@@ -279,9 +279,13 @@
 
   // The decorative scene starts automatically; the image stays visible while loading.
   const robotStatus = document.querySelector('.robot-status');
+  const robotLoading = document.querySelector('.robot-progress');
+  robotLoading.hidden = false;
+  robotStatus.textContent = 'Cargando el modelo 3D del robot.';
   import('./vendor/three.module.js').then(createScene).then(() => {
     robotStatus.textContent = 'Robot de ruedas con sensores y circuitos. Puede explorarlo con los botones de giro o arrastrándolo.';
   }).catch(() => {
+    robotLoading.hidden = true;
     document.querySelector('#robot-scene').classList.remove('scene-ready');
     robotStatus.textContent = 'Vista estática de un robot de ruedas con sensores y circuitos. La vista 3D no está disponible.';
   });
@@ -344,7 +348,7 @@
     function setProgress(p) {
       const pct = Math.max(0, Math.min(100, Math.round(p || 0)));
       if (progressCircle) progressCircle.setAttribute('stroke-dashoffset', String(100 - pct));
-      if (progressText) progressText.textContent = `Cargando ${pct}%`;
+      if (progressText) progressText.textContent = pct === 100 ? 'Preparando robot 3D…' : `Cargando robot 3D · ${pct}%`;
     }
     function loadModel(url) {
       return new Promise((resolve, reject) => {
@@ -388,10 +392,11 @@
       model.scale.setScalar(14.65);
       robot.add(model);
       setProgress(100);
+      robotLoading.hidden = true;
       host.classList.add('scene-ready');
     } catch (error) {
       console.warn('No se pudo cargar el robot GLB; se muestra la imagen de respaldo.', error);
-      host.querySelector('.robot-progress')?.remove();
+      robotLoading.hidden = true;
       environment.texture.dispose();
       renderer.dispose();
       throw error;
