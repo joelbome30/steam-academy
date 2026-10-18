@@ -47,16 +47,11 @@
   const courseTabs = [...explorer.querySelectorAll('[role="tab"]')];
   const coursePanels = [...explorer.querySelectorAll('.course-card')];
   function selectCourse(index, moveFocus = false) {
-    const changed = courseTabs[index].getAttribute('aria-selected') !== 'true';
     courseTabs.forEach((tab, i) => {
       tab.setAttribute('aria-selected', String(i === index));
       tab.tabIndex = i === index ? 0 : -1;
       coursePanels[i].hidden = i !== index;
     });
-    if (changed && !moveFocus) {
-      coursePanels[index].getAnimations().forEach(animation => animation.cancel());
-      animateUI(coursePanels[index], [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }]);
-    }
     if (moveFocus) courseTabs[index].focus();
   }
   coursePanels.forEach((panel, i) => {
@@ -81,7 +76,9 @@
 
   // A small, local block-programming exercise: no data leaves the page.
   const programList = document.querySelector('#robot-program');
+  const robotBoard = document.querySelector('#robot-board');
   const robotSprite = document.querySelector('#robot-sprite');
+  const goalConfetti = document.querySelector('#goal-confetti');
   const result = document.querySelector('#sensor-result');
   const runButton = document.querySelector('#run-program');
   const resetButton = document.querySelector('#reset-program');
@@ -89,6 +86,7 @@
   const program = [];
   let robot = { x: 0, y: 2, direction: 0 };
   let runningProgram = false;
+  let confettiTimer;
   function paintRobot() {
     robotSprite.style.setProperty('--robot-col', robot.x);
     robotSprite.style.setProperty('--robot-row', robot.y);
@@ -145,14 +143,41 @@
     const delta = [[1, 0], [0, 1], [-1, 0], [0, -1]][robot.direction];
     return { x: robot.x + delta[0], y: robot.y + delta[1] };
   }
+  function visibleBoardFraction() {
+    const bounds = robotBoard.getBoundingClientRect();
+    const headerBottom = document.querySelector('.header').getBoundingClientRect().bottom;
+    const visible = Math.max(0, Math.min(bounds.bottom, innerHeight) - Math.max(bounds.top, headerBottom));
+    return visible / bounds.height;
+  }
+  function celebrateGoal() {
+    if (motionPreference.matches || document.hidden || visibleBoardFraction() < .5) return;
+    const offsets = [[-65, -60], [-42, -85], [-18, -55], [12, -90], [38, -58], [55, -27], [-75, -15], [-48, 8], [-20, 25], [8, 15], [35, 33], [65, 8]];
+    goalConfetti.replaceChildren();
+    offsets.forEach(([x, y], index) => {
+      const piece = document.createElement('span');
+      piece.style.setProperty('--dx', `${x}px`);
+      piece.style.setProperty('--dy', `${y}px`);
+      piece.style.setProperty('--spin', `${index % 2 ? -260 : 260}deg`);
+      goalConfetti.append(piece);
+    });
+    clearTimeout(confettiTimer);
+    confettiTimer = setTimeout(() => goalConfetti.replaceChildren(), 1000);
+  }
   const wait = ms => new Promise(resolve => window.setTimeout(resolve, ms));
   runButton.addEventListener('click', async () => {
     if (runningProgram || !program.length) return;
     runningProgram = true;
+    robotBoard.classList.remove('is-complete');
+    goalConfetti.replaceChildren();
     setEditorDisabled(true);
+    if (visibleBoardFraction() < .7) {
+      robotBoard.scrollIntoView({ behavior: motionPreference.matches ? 'auto' : 'smooth', block: 'center' });
+      await wait(motionPreference.matches ? 0 : 360);
+    }
     result.textContent = 'El robot está ejecutando el programa.';
     let sensorEnabled = false;
     let stopped = false;
+    let reachedGoal = false;
     for (let index = 0; index < program.length; index++) {
       const row = programList.children[index];
       row?.setAttribute('aria-current', 'step');
@@ -179,9 +204,11 @@
           result.textContent = sensorEnabled ? 'Sensor activado: hay un obstáculo. El robot se detiene.' : 'El robot encontró un obstáculo y se detuvo.';
           stopped = true;
         } else {
+          reachedGoal = next.x === 6 && next.y === 2;
+          if (reachedGoal) robotBoard.classList.add('is-complete');
           robot = { ...robot, ...next };
           paintRobot();
-          if (robot.x === 6 && robot.y === 2) {
+          if (reachedGoal) {
             result.textContent = '¡Llegaste a la meta! El robot completó el recorrido.';
             stopped = true;
           }
@@ -189,6 +216,7 @@
       }
       await wait(motionPreference.matches ? 0 : 430);
       row?.removeAttribute('aria-current');
+      if (reachedGoal) celebrateGoal();
       if (stopped) break;
     }
     if (!stopped) result.textContent = 'Programa terminado. Puedes cambiar los bloques y volver a probar.';
@@ -199,6 +227,9 @@
     if (runningProgram) return;
     program.length = 0;
     robot = { x: 0, y: 2, direction: 0 };
+    robotBoard.classList.remove('is-complete');
+    clearTimeout(confettiTimer);
+    goalConfetti.replaceChildren();
     paintRobot();
     result.textContent = 'Tablero y programa reiniciados.';
     renderProgram();
@@ -206,92 +237,6 @@
   });
   paintRobot();
   runButton.disabled = true;
-
-  // Native disclosure semantics stay intact; animate both directions and allow reversal.
-  document.querySelectorAll('details').forEach(details => {
-    const summary = details.querySelector('summary');
-    let animation;
-    let expanded = details.open;
-    summary.addEventListener('click', event => {
-      if (motionPreference.matches || !details.animate) return;
-      event.preventDefault();
-      const start = details.getBoundingClientRect().height;
-      expanded = animation ? !expanded : !details.open;
-      if (animation) { animation.onfinish = null; animation.cancel(); }
-      details.style.height = '';
-      details.open = expanded;
-      const end = details.getBoundingClientRect().height;
-      details.open = true;
-      details.classList.toggle('is-collapsing', !expanded);
-      details.style.overflow = 'clip';
-      animation = animateUI(details, [{ height: `${start}px` }, { height: `${end}px` }], 300);
-      animation.onfinish = () => {
-        details.open = expanded;
-        details.style.overflow = '';
-        details.classList.remove('is-collapsing');
-        animation = null;
-      };
-    });
-  });
-
-  // Measure the usable viewport, excluding the sticky header. Tall elements
-  // need only fill part of that viewport, rather than fit completely inside it.
-  if ('IntersectionObserver' in window) {
-    const targets = [...document.querySelectorAll('.photo-grid figure, .section-heading h2, .method-heading h2, .experience-section h2, .course-tabs, .method-list details, .steps li, .robot-logic')];
-    const played = new WeakSet();
-    const running = new Map();
-    let observer;
-    let resizeTimer;
-    function observeEntrances() {
-      observer?.disconnect();
-      const header = document.querySelector('.header').getBoundingClientRect().height;
-      const height = window.visualViewport?.height || innerHeight;
-      const bottom = Math.round(height * .08);
-      const usable = Math.max(1, height - header - bottom);
-      observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          const element = entry.target;
-          const visible = entry.isIntersecting && entry.intersectionRect.height > 0;
-          const current = running.get(element);
-          if (current) {
-            if (!visible || document.hidden) current.pause();
-            else if (current.playState === 'paused') current.play();
-            return;
-          }
-          if (played.has(element) || motionPreference.matches || document.hidden) return;
-          const required = Math.min(entry.boundingClientRect.height * .55, usable * .32);
-          if (!visible || entry.intersectionRect.height < required) return;
-          played.add(element);
-          const picture = element.matches('figure');
-          const row = element.matches('details, li');
-          const compact = innerWidth < 600;
-          const frames = picture ? [
-            { opacity: .15, clipPath: 'inset(16% 0 0 0)', transform: `translateY(${compact ? 28 : 48}px) scale(.94)` },
-            { opacity: 1, clipPath: 'inset(0 0 0 0)', transform: 'none' }
-          ] : [
-            { opacity: 0, transform: row ? 'translateX(-24px)' : `translateY(${compact ? 28 : 44}px)` },
-            { opacity: 1, transform: 'none' }
-          ];
-          const animation = animateUI(element, frames, picture ? 1100 : row ? 650 : 850);
-          if (!animation) return;
-          running.set(element, animation);
-          const finish = () => { running.delete(element); observer.unobserve(element); };
-          animation.addEventListener('finish', finish, { once: true });
-          animation.addEventListener('cancel', finish, { once: true });
-        });
-      }, { rootMargin: `-${header}px 0px -${bottom}px 0px`, threshold: Array.from({ length: 21 }, (_, i) => i / 20) });
-      targets.forEach(element => { if (!played.has(element) || running.has(element)) observer.observe(element); });
-    }
-    observeEntrances();
-    const resize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(observeEntrances, 120); };
-    window.addEventListener('resize', resize, { passive: true });
-    window.visualViewport?.addEventListener('resize', resize, { passive: true });
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) running.forEach(animation => animation.pause());
-      else observeEntrances();
-    });
-    motionPreference.addEventListener('change', observeEntrances);
-  }
 
   // The decorative scene starts automatically; the image stays visible while loading.
   const robotStatus = document.querySelector('.robot-status');
