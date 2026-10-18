@@ -17,8 +17,11 @@
   <meta property="og:image:alt" content="Logotipo de STEAM Academy">
   <meta name="twitter:card" content="summary_large_image">
   <title>STEAM Academy | Robótica y programación en Barranquilla</title>
-  <link rel="stylesheet" href="styles.css?v=30">
-  <script src="script.js?v=16" defer></script>
+  <link rel="preload" href="model/robot-fast.glb" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="vendor/draco/draco_wasm_wrapper.js" as="fetch" crossorigin>
+  <link rel="preload" href="vendor/draco/draco_decoder.wasm" as="fetch" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=32">
+  <script src="script.js?v=18" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -165,8 +168,14 @@
         </div>
         <a class="back-top" href="#home" aria-label="Volver al inicio">↑</a>
       </div>
-      <div class="footer-bottom"><span>© STEAM Academy.</span><a href="https://www.stemacademy.com.co/_files/ugd/3ed36b_459591f26558480da16a9f91e3c90976.pdf">Política de datos personales (PDF) ↗</a></div>
+      <div class="footer-bottom"><span>© STEAM Academy.</span><div class="footer-legal"><a href="https://www.stemacademy.com.co/_files/ugd/3ed36b_459591f26558480da16a9f91e3c90976.pdf">Política de datos personales (PDF) ↗</a><button type="button" id="open-cookies" aria-haspopup="dialog" aria-controls="cookies-dialog">Información sobre cookies</button></div></div>
     </div>
   </footer>
+  <dialog id="cookies-dialog" class="cookies-dialog" aria-labelledby="cookies-title">
+    <div class="cookies-heading"><h2 id="cookies-title">Cookies en esta página</h2><button type="button" class="modal-close" id="close-cookies" aria-label="Cerrar información sobre cookies">×</button></div>
+    <p>El código de esta página no crea cookies ni guarda información en el almacenamiento del navegador. Tampoco incluye analítica, publicidad o videos incrustados.</p>
+    <p>La página se aloja en GitHub Pages. GitHub puede registrar la dirección IP de las visitas por seguridad; eso no es una cookie creada por esta página. <a href="https://docs.github.com/es/pages/getting-started-with-github-pages/what-is-github-pages" target="_blank" rel="noopener noreferrer">Conoce cómo funciona GitHub Pages ↗</a></p>
+    <p>Si abres enlaces a otros sitios, sus propias políticas y cookies pueden aplicarse allí.</p>
+  </dialog>
 </body>
 </html>

@@ -126,20 +126,40 @@
         control.setAttribute('aria-label', `${action}: ${blockNames[type]}`);
         control.disabled = runningProgram || (actionIndex === 0 && index === 0) || (actionIndex === 1 && index === program.length - 1);
         control.addEventListener('click', () => {
+          const nextIndex = actionIndex === 0 ? index - 1 : actionIndex === 1 ? index + 1 : Math.min(index, program.length - 2);
           if (actionIndex === 0) [program[index - 1], program[index]] = [program[index], program[index - 1]];
           else if (actionIndex === 1) [program[index], program[index + 1]] = [program[index + 1], program[index]];
           else program.splice(index, 1);
           renderProgram();
+          if (program.length) {
+            animateProgramStep(nextIndex, [
+              { opacity: .55, transform: `translateY(${actionIndex === 0 ? 8 : -8}px)` },
+              { opacity: 1, transform: 'none' }
+            ], 260);
+          }
+          (programList.children[nextIndex]?.querySelector('.program-control:not(:disabled)') || document.querySelector('.add-block'))?.focus();
         });
         row.append(control);
       });
       programList.append(row);
     });
   }
+  function animateProgramStep(index, frames, duration = 260) {
+    const row = programList.children[index];
+    const bounds = row?.getBoundingClientRect();
+    const listBounds = programList.getBoundingClientRect();
+    const headerBottom = document.querySelector('.header').getBoundingClientRect().bottom;
+    if (!bounds || document.hidden || bounds.bottom < Math.max(headerBottom, listBounds.top) || bounds.top > Math.min(innerHeight, listBounds.bottom)) return;
+    animateUI(row, frames, duration);
+  }
   document.querySelectorAll('.add-block').forEach(button => button.addEventListener('click', () => {
     if (runningProgram) return;
     program.push(button.dataset.block);
     renderProgram();
+    animateProgramStep(program.length - 1, [
+      { opacity: 0, transform: 'translateY(-10px) scale(.96)' },
+      { opacity: 1, transform: 'none' }
+    ], 300);
     result.textContent = `${blockNames[button.dataset.block]} añadido al programa.`;
   }));
   function setEditorDisabled(disabled) {
@@ -190,6 +210,11 @@
     for (let index = 0; index < program.length; index++) {
       const row = programList.children[index];
       row?.setAttribute('aria-current', 'step');
+      animateProgramStep(index, [
+        { filter: 'brightness(1)', transform: 'scale(1)' },
+        { filter: 'brightness(1.25)', transform: 'scale(1.025)' },
+        { filter: 'brightness(1)', transform: 'scale(1)' }
+      ], 360);
       const type = program[index];
       if (type === 'sensor') {
         sensorEnabled = true;
@@ -301,8 +326,14 @@
     robot.rotation.set(.06, 0, -.05);
     scene.add(robot);
 
-    const { GLTFLoader } = await import('./vendor/GLTFLoader.js');
+    const [{ GLTFLoader }, { DRACOLoader }] = await Promise.all([
+      import('./vendor/GLTFLoader.js'), import('./vendor/DRACOLoader.js')
+    ]);
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('./vendor/draco/');
+    dracoLoader.setWorkerLimit(2);
+    loader.setDRACOLoader(dracoLoader);
     const progressCircle = host.querySelector('.robot-progress-circle');
     const progressText = host.querySelector('.robot-progress-text');
     function setProgress(p) {
@@ -321,7 +352,16 @@
       });
     }
     try {
-      const gltf = await loadModel('./model/robot.glb');
+      let gltf;
+      try {
+        gltf = await loadModel('./model/robot-fast.glb');
+      } catch (error) {
+        console.warn('La versión comprimida del robot no se pudo cargar; se intenta el modelo original.', error);
+        setProgress(0);
+        gltf = await loadModel('./model/robot.glb');
+      } finally {
+        dracoLoader.dispose();
+      }
       const model = gltf.scene;
       model.traverse((object) => {
         if (object.isMesh) {
@@ -496,5 +536,20 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
+  }
+
+  const openCookies = document.querySelector('#open-cookies');
+  const cookiesDialog = document.querySelector('#cookies-dialog');
+  if (openCookies && cookiesDialog) {
+    openCookies.addEventListener('click', () => {
+      cookiesDialog.showModal();
+      cookiesDialog.querySelector('#close-cookies').focus();
+      animateUI(cookiesDialog, [
+        { opacity: 0, transform: 'translateY(12px)' },
+        { opacity: 1, transform: 'none' }
+      ], 240);
+    });
+    cookiesDialog.querySelector('#close-cookies').addEventListener('click', () => cookiesDialog.close());
+    cookiesDialog.addEventListener('close', () => openCookies.focus());
   }
 })();

@@ -966,6 +966,9 @@ em {
 .robot-program li[data-block="sensor"] {
   background: #a4b8ff;
 }
+.robot-program li[aria-current="step"] {
+  box-shadow: inset 0 0 0 2px #fff;
+}
 .robot-program .program-empty {
   color: #bfc0b9;
   background: transparent;
@@ -1248,6 +1251,61 @@ footer {
   color: #bfc0b9;
   font-size: 13px;
   line-height: 1.6;
+}
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+.footer-legal button {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.footer-legal button:hover {
+  color: var(--paper);
+}
+
+/* Información sobre cookies */
+.cookies-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(540px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: clamp(22px, 4vw, 36px);
+  overflow: auto;
+  border: 1px solid #ffffff30;
+  color: var(--paper);
+  background: #292a28;
+}
+.cookies-dialog::backdrop {
+  background: #071012dc;
+}
+.cookies-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.cookies-heading h2 {
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+}
+.cookies-dialog p {
+  margin-top: 14px;
+  color: #d0d1cb;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.cookies-dialog a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Ventana de contacto */
