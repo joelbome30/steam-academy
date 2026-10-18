@@ -79,15 +79,133 @@
   explorer.querySelector('.course-tabs').hidden = false;
   selectCourse(0);
 
-  const sensorButton = document.querySelector('#simulate-sensor');
-  sensorButton.hidden = false;
-  sensorButton.addEventListener('click', () => {
-    const blocked = sensorButton.getAttribute('aria-pressed') !== 'true';
-    sensorButton.setAttribute('aria-pressed', String(blocked));
-    sensorButton.textContent = blocked ? 'Retirar el obstáculo' : 'Colocar un obstáculo';
-    document.querySelector('#sensor-result').textContent = blocked ? 'Obstáculo detectado → el motor se detiene.' : 'Camino libre → el motor avanza.';
-    document.querySelectorAll('.circuit-path i').forEach((path, index) => animateUI(path, [{ opacity: .2, transform: 'scaleX(.15)' }, { opacity: 1, transform: 'scaleX(1)' }], 450, index * 130));
+  // A small, local block-programming exercise: no data leaves the page.
+  const programList = document.querySelector('#robot-program');
+  const robotSprite = document.querySelector('#robot-sprite');
+  const result = document.querySelector('#sensor-result');
+  const runButton = document.querySelector('#run-program');
+  const resetButton = document.querySelector('#reset-program');
+  const blockNames = { forward: 'Avanzar una casilla', left: 'Girar a la izquierda', right: 'Girar a la derecha', sensor: 'Si hay obstáculo, parar' };
+  const program = [];
+  let robot = { x: 0, y: 2, direction: 0 };
+  let runningProgram = false;
+  function paintRobot() {
+    robotSprite.style.setProperty('--robot-col', robot.x);
+    robotSprite.style.setProperty('--robot-row', robot.y);
+    robotSprite.style.setProperty('--robot-angle', `${90 + robot.direction * 90}deg`);
+  }
+  function renderProgram() {
+    runButton.disabled = runningProgram || program.length === 0;
+    programList.replaceChildren();
+    if (!program.length) {
+      const empty = document.createElement('li');
+      empty.className = 'program-empty';
+      empty.textContent = 'Añade un bloque para empezar.';
+      programList.append(empty);
+      return;
+    }
+    program.forEach((type, index) => {
+      const row = document.createElement('li');
+      row.dataset.block = type;
+      const label = document.createElement('span');
+      label.className = 'program-step';
+      label.textContent = blockNames[type];
+      row.append(label);
+      [['↑', 'Subir bloque'], ['↓', 'Bajar bloque'], ['×', 'Quitar bloque']].forEach(([symbol, action], actionIndex) => {
+        const control = document.createElement('button');
+        control.type = 'button';
+        control.className = 'program-control';
+        control.textContent = symbol;
+        control.setAttribute('aria-label', `${action}: ${blockNames[type]}`);
+        control.disabled = runningProgram || (actionIndex === 0 && index === 0) || (actionIndex === 1 && index === program.length - 1);
+        control.addEventListener('click', () => {
+          if (actionIndex === 0) [program[index - 1], program[index]] = [program[index], program[index - 1]];
+          else if (actionIndex === 1) [program[index], program[index + 1]] = [program[index + 1], program[index]];
+          else program.splice(index, 1);
+          renderProgram();
+        });
+        row.append(control);
+      });
+      programList.append(row);
+    });
+  }
+  document.querySelectorAll('.add-block').forEach(button => button.addEventListener('click', () => {
+    if (runningProgram) return;
+    program.push(button.dataset.block);
+    renderProgram();
+    result.textContent = `${blockNames[button.dataset.block]} añadido al programa.`;
+  }));
+  function setEditorDisabled(disabled) {
+    document.querySelectorAll('.add-block').forEach(button => { button.disabled = disabled; });
+    runButton.disabled = disabled || program.length === 0;
+    resetButton.disabled = disabled;
+    renderProgram();
+  }
+  function nextCell() {
+    const delta = [[1, 0], [0, 1], [-1, 0], [0, -1]][robot.direction];
+    return { x: robot.x + delta[0], y: robot.y + delta[1] };
+  }
+  const wait = ms => new Promise(resolve => window.setTimeout(resolve, ms));
+  runButton.addEventListener('click', async () => {
+    if (runningProgram || !program.length) return;
+    runningProgram = true;
+    setEditorDisabled(true);
+    result.textContent = 'El robot está ejecutando el programa.';
+    let sensorEnabled = false;
+    let stopped = false;
+    for (let index = 0; index < program.length; index++) {
+      const row = programList.children[index];
+      row?.setAttribute('aria-current', 'step');
+      const type = program[index];
+      if (type === 'sensor') {
+        sensorEnabled = true;
+        const next = nextCell();
+        if (next.x === 4 && next.y === 2) {
+          result.textContent = 'Sensor activado: hay un obstáculo. El robot se detiene.';
+          stopped = true;
+        } else result.textContent = 'Sensor activado: el camino está libre.';
+      } else if (type === 'left') {
+        robot.direction = (robot.direction + 3) % 4;
+        paintRobot();
+      } else if (type === 'right') {
+        robot.direction = (robot.direction + 1) % 4;
+        paintRobot();
+      } else {
+        const next = nextCell();
+        if (next.x < 0 || next.x > 6 || next.y < 0 || next.y > 3) {
+          result.textContent = 'El borde del tablero detuvo el robot. Prueba otra secuencia.';
+          stopped = true;
+        } else if (next.x === 4 && next.y === 2) {
+          result.textContent = sensorEnabled ? 'Sensor activado: hay un obstáculo. El robot se detiene.' : 'El robot encontró un obstáculo y se detuvo.';
+          stopped = true;
+        } else {
+          robot = { ...robot, ...next };
+          paintRobot();
+          if (robot.x === 6 && robot.y === 2) {
+            result.textContent = '¡Llegaste a la meta! El robot completó el recorrido.';
+            stopped = true;
+          }
+        }
+      }
+      await wait(motionPreference.matches ? 0 : 430);
+      row?.removeAttribute('aria-current');
+      if (stopped) break;
+    }
+    if (!stopped) result.textContent = 'Programa terminado. Puedes cambiar los bloques y volver a probar.';
+    runningProgram = false;
+    setEditorDisabled(false);
   });
+  resetButton.addEventListener('click', () => {
+    if (runningProgram) return;
+    program.length = 0;
+    robot = { x: 0, y: 2, direction: 0 };
+    paintRobot();
+    result.textContent = 'Tablero y programa reiniciados.';
+    renderProgram();
+    runButton.disabled = true;
+  });
+  paintRobot();
+  runButton.disabled = true;
 
   // Native disclosure semantics stay intact; animate both directions and allow reversal.
   document.querySelectorAll('details').forEach(details => {

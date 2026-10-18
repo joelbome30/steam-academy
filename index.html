@@ -17,8 +17,8 @@
   <meta property="og:image:alt" content="Logotipo de STEAM Academy">
   <meta name="twitter:card" content="summary_large_image">
   <title>STEAM Academy | Robótica y programación en Barranquilla</title>
-  <link rel="stylesheet" href="styles.css?v=15">
-  <script src="script.js?v=11" defer></script>
+  <link rel="stylesheet" href="styles.css?v=28">
+  <script src="script.js?v=13" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -41,7 +41,7 @@
       <section class="hero container" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow">STEAM Academy · Barranquilla</p>
-          <h1 id="hero-title">Aprender <em>haciendo.</em></h1>
+          <h1 id="hero-title"><span>Aprender</span><em>haciendo.</em></h1>
         </div>
         <div class="hero-visual" id="robot-scene">
           <div class="robot-loading-art" aria-hidden="true">
@@ -55,6 +55,7 @@
             </div>
           </div>
           <canvas id="robot-canvas" aria-hidden="true"></canvas>
+          <div class="hero-visual-note" aria-hidden="true"><span>Sensor ultrasónico</span></div>
 
           <p class="robot-status sr-only" role="status" aria-live="polite">Modelo de un robot de ruedas con sensores y circuitos.</p>
           <div class="robot-controls" role="group" aria-label="Explorar el robot 3D">
@@ -63,23 +64,13 @@
             <button type="button" id="robot-right" aria-label="Girar el robot a la derecha">↷</button>
           </div>
         </div>
-        <div class="hero-intro"><p>Robótica y programación para niños y jóvenes.<br>De la primera pregunta al primer proyecto.</p><a class="hero-courses" href="#cursos">Encuentre su curso <span aria-hidden="true">↓</span></a></div>
-        <a class="button button-lime hero-action" href="#experiencia"><span>Conozca la academia</span><span class="button-arrow" aria-hidden="true">↗</span></a>
+        <div class="hero-intro"><p>Robótica y programación para niños y jóvenes. De la primera pregunta al primer proyecto.</p><div class="hero-links"><a class="hero-courses" href="#cursos">Encuentre su curso <span aria-hidden="true">↓</span></a><a class="button button-lime" href="#experiencia"><span>Conozca la academia</span><span class="button-arrow" aria-hidden="true">↗</span></a></div></div>
       </section>
 
   </div>
   <div class="light-stage">
-    <section class="community-section container section" id="comunidad">
-      <div class="section-heading"><div><p class="eyebrow"><span class="section-index">02</span> Desde el aula</p><h2>Dentro de <br><span class="soft">STEAM Academy.</span></h2></div><div class="community-note"><p>Manos ocupadas, preguntas nuevas y alguien cerca para ayudar. Así se aprende en STEAM.</p><a class="text-link" href="https://www.instagram.com/steamacademy.co/">Conozca nuestra comunidad <span aria-hidden="true">↗</span></a></div></div>
-      <div class="photo-grid">
-        <figure class="photo-small"><a href="https://www.instagram.com/steamacademy.co/reel/DDnDoFuPJfO/" target="_blank" rel="noopener noreferrer"><img src="assets/steam-realidad-virtual.webp" alt="Participante explorando con un visor de realidad virtual" width="360" height="640" loading="lazy" decoding="async"><figcaption><span>01 / Explorar</span>Exploración con realidad virtual <b aria-hidden="true">↗</b></figcaption></a></figure>
-        <figure class="photo-large"><a href="https://www.stemacademy.com.co/" target="_blank" rel="noopener noreferrer"><img src="assets/project-1.jpg" alt="Estudiante conversando en las instalaciones de STEAM Academy" width="1080" height="1920" loading="lazy" decoding="async"><figcaption><span>02 / Compartir</span>Conversaciones en STEAM <b aria-hidden="true">↗</b></figcaption></a></figure>
-        <figure class="photo-small"><a href="#home"><img src="assets/model.png" alt="Vista lateral del modelo de robot con sensores, circuitos y ruedas" width="1920" height="1080" loading="lazy" decoding="async"><figcaption>Explore el modelo 3D <b aria-hidden="true">↗</b></figcaption></a></figure>
-      </div>
-      <a class="community-source" href="https://www.instagram.com/steamacademy.co/" target="_blank" rel="noopener noreferrer">Historias de nuestra comunidad · @steamacademy.co ↗</a>
-    </section>
     <section class="courses-section container section" id="cursos" aria-labelledby="courses-title">
-      <div class="section-heading"><div><p class="eyebrow"><span class="section-index">01</span> Cursos</p><h2 id="courses-title">Encuentre<br><span class="soft">su curso.</span></h2></div><p class="section-lead">Robots, juegos y software: cada curso empieza con algo que el estudiante puede construir.</p></div>
+      <div class="section-heading"><div><p class="eyebrow"><span class="section-index">01</span> Cursos</p><h2 id="courses-title">Encuentre <span class="soft">su curso.</span></h2></div><p class="section-lead">Robots, juegos y software para aprender creando.</p></div>
       <div class="course-explorer">
         <div class="course-tabs" role="tablist" aria-label="Elija un curso" hidden>
           <button type="button" role="tab" id="course-tab-1" aria-controls="course-panel-1" aria-selected="true"><span>Robótica Maker</span><small>7 a 17 años</small></button>
@@ -89,18 +80,27 @@
         </div>
         <div class="course-grid">
         <article class="course-card" id="course-panel-1">
-          <div class="course-content"><div class="course-meta"><span>01 / Robótica</span><span class="age">7 a 17 años</span></div><h3>Robótica Maker</h3><p>Construyen y programan robots mientras aprenden electrónica, sensores y lógica mediante proyectos reales.</p><a href="https://www.stemacademy.com.co/curso-robotica-maker">Conoce Robótica Maker <span aria-hidden="true">↗</span></a></div>
+          <div class="course-content"><div class="course-visual"><img src="assets/course-maker-workshop.webp" alt="Estudiantes y docente construyen robots en un taller; imagen ilustrativa" width="900" height="600" loading="lazy" decoding="async"></div><div class="course-meta"><span>01 / Robótica</span><span class="age">7 a 17 años</span></div><h3>Robótica Maker</h3><p>Construyen y programan robots mientras aprenden electrónica, sensores y lógica mediante proyectos reales.</p><a href="https://www.stemacademy.com.co/curso-robotica-maker">Conoce Robótica Maker <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="course-card" id="course-panel-2">
-          <div class="course-content"><div class="course-meta"><span>02 / Programación</span><span class="age">7 a 11 años</span></div><h3>Héroes de código</h3><p>Desarrollan pensamiento lógico creando juegos, resolviendo retos y programando proyectos interactivos.</p><a href="https://www.stemacademy.com.co/curso-heroes-de-codigo">Conoce Héroes de código <span aria-hidden="true">↗</span></a></div>
+          <div class="course-content"><div class="course-visual"><img src="assets/course-heroes-classroom.webp" alt="Estudiantes colaboran frente a un computador; imagen ilustrativa" width="900" height="600" loading="lazy" decoding="async"></div><div class="course-meta"><span>02 / Programación</span><span class="age">7 a 11 años</span></div><h3>Héroes de código</h3><p>Desarrollan pensamiento lógico creando juegos, resolviendo retos y programando proyectos interactivos.</p><a href="https://www.stemacademy.com.co/curso-heroes-de-codigo">Conoce Héroes de código <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="course-card" id="course-panel-3">
-          <div class="course-content"><div class="course-meta"><span>03 / Videojuegos</span><span class="age">12+ años</span></div><h3>Game Developer</h3><p>Aprenden programación, diseño y narrativa mientras crean sus propios videojuegos desde cero.</p><a href="#experiencia">Experiencia STEAM <span aria-hidden="true">↗</span></a></div>
+          <div class="course-content"><div class="course-visual"><img src="assets/course-game-photo.webp" alt="Portátil con un juego en desarrollo y un control; imagen ilustrativa" width="900" height="600" loading="lazy" decoding="async"></div><div class="course-meta"><span>03 / Videojuegos</span><span class="age">12+ años</span></div><h3>Game Developer</h3><p>Aprenden programación, diseño y narrativa mientras crean sus propios videojuegos desde cero.</p><a href="#experiencia">Experiencia STEAM <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="course-card" id="course-panel-4">
-          <div class="course-content"><div class="course-meta"><span>04 / Desarrollo de software</span><span class="age">12+ años</span></div><h3>Developer Junior</h3><p>Dan sus primeros pasos en desarrollo de software con estructuras de código y herramientas tecnológicas.</p><a href="#experiencia">Experiencia STEAM <span aria-hidden="true">↗</span></a></div>
+          <div class="course-content"><div class="course-visual"><img src="assets/course-developer-photo.webp" alt="Persona programando en un portátil; imagen ilustrativa" width="900" height="600" loading="lazy" decoding="async"></div><div class="course-meta"><span>04 / Desarrollo de software</span><span class="age">12+ años</span></div><h3>Developer Junior</h3><p>Dan sus primeros pasos en desarrollo de software con estructuras de código y herramientas tecnológicas.</p><a href="#experiencia">Experiencia STEAM <span aria-hidden="true">↗</span></a></div>
         </article>
       </div>
+      </div>
+      <div class="course-outcomes" aria-label="Proyectos que se trabajan en las rutas"><p>Del taller salen ideas que se pueden mostrar.</p><ul><li>Robots móviles y electrónica</li><li>Videojuegos y experiencias interactivas</li><li>Proyectos explicados por sus creadores</li></ul></div>
+    </section>
+    <section class="community-section container section" id="comunidad">
+      <div class="section-heading"><div><p class="eyebrow"><span class="section-index">02</span> Aprender en acción</p><h2>Explorar. <br><span class="soft">Crear juntos.</span></h2></div><div class="community-note"><p>Realidad virtual, colaboración y robots: imágenes ilustrativas de actividades STEAM.</p><a class="text-link" href="https://www.instagram.com/steamacademy.co/" target="_blank" rel="noopener noreferrer">Vea la comunidad real de STEAM Academy <span aria-hidden="true">↗</span></a></div></div>
+      <div class="photo-grid">
+        <figure><img src="assets/learning-vr-photo.webp" alt="Dos escolares exploran una escena con visores de realidad virtual; imagen ilustrativa" width="900" height="601" loading="lazy" decoding="async"><figcaption><span>01 / Explorar</span>Realidad virtual</figcaption></figure>
+        <figure><img src="assets/learning-together-photo.webp" alt="Dos jóvenes trabajan juntos frente a un portátil; imagen ilustrativa" width="900" height="600" loading="lazy" decoding="async"><figcaption><span>02 / Colaborar</span>Ideas compartidas</figcaption></figure>
+        <figure><img src="assets/learning-robot-photo.webp" alt="Robot educativo de ruedas sobre una mesa; imagen ilustrativa" width="900" height="648" loading="lazy" decoding="async"><figcaption><span>03 / Construir</span>Robótica en marcha</figcaption></figure>
       </div>
     </section>
 
@@ -108,11 +108,14 @@
   <section class="method-section section" id="metodologia">
     <div class="container method-grid"><div class="method-heading"><p class="eyebrow"><span class="section-index">03</span> Una metodología para crear</p><h2>Construir. <br>Probar. <em>Entender.</em></h2><p>Cada reto lleva a construir, probar y mejorar una idea con ayuda del equipo docente.</p></div>
       <div class="robot-logic">
-        <div><h3>Del sensor al movimiento.</h3><p>Un robot detecta, toma una decisión y actúa. Este ejemplo muestra cómo una condición se convierte en movimiento.</p><div class="circuit-path" aria-label="Sensor, código y motor"><span>Sensor</span><i aria-hidden="true"></i><span>Código</span><i aria-hidden="true"></i><span>Motor</span></div></div>
-        <div class="robot-code"><small>Ejemplo educativo · pseudocódigo</small><pre><code><span>si</span> hay_obstáculo:
-    detener_motor()
-<span>si no</span>:
-    avanzar()</code></pre><button type="button" id="simulate-sensor" hidden aria-pressed="false">Colocar un obstáculo</button><output id="sensor-result" aria-live="polite">Camino libre → el motor avanza.</output></div>
+        <div class="robot-workbench">
+          <div class="workbench-heading"><div><h3>Del sensor al movimiento.</h3><p>Arma una secuencia y mira qué hace el robot. Añade bloques, ordénalos y ejecútalos.</p></div><span class="workbench-mark">01—04</span></div>
+          <div class="robot-simulation"><div class="robot-board" id="robot-board" role="img" aria-label="Tablero de siete columnas y cuatro filas. El robot empieza mirando a la derecha; una barrera bloquea la quinta columna de la tercera fila y una bandera a cuadros marca la meta en la última columna."><span class="board-obstacle" aria-hidden="true"></span><span class="board-goal" aria-hidden="true"></span><span class="robot-sprite" id="robot-sprite" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 5 53 45H11L32 5Z" fill="currentColor"/><circle cx="32" cy="37" r="5" fill="#fff"/><path d="M18 48h28l5 8H13l5-8Z" fill="#d3d9cf"/><circle cx="20" cy="55" r="4" fill="#20211f"/><circle cx="44" cy="55" r="4" fill="#20211f"/></svg></span></div><div class="board-labels"><span>Inicio</span><span>Obstáculo</span><span>Meta</span></div></div>
+        </div>
+        <div class="block-programmer">
+          <div class="block-palette" aria-label="Bloques disponibles"><p class="block-label">ELIGE UN BLOQUE</p><button type="button" class="add-block block-forward" data-block="forward"><span aria-hidden="true">↟</span>Avanzar una casilla</button><button type="button" class="add-block block-left" data-block="left"><span aria-hidden="true">↶</span>Girar a la izquierda</button><button type="button" class="add-block block-right" data-block="right"><span aria-hidden="true">↷</span>Girar a la derecha</button><button type="button" class="add-block block-sensor" data-block="sensor"><span aria-hidden="true">◉</span>Si hay obstáculo, parar</button></div>
+          <div class="program-area"><p class="block-label">MI PROGRAMA</p><ol id="robot-program" class="robot-program" aria-label="Bloques del programa"><li class="program-empty">Añade un bloque para empezar.</li></ol><div class="program-actions"><button type="button" id="run-program" class="button button-lime">Ejecutar <span aria-hidden="true">▶</span></button><button type="button" id="reset-program" class="reset-program">Reiniciar</button></div><output id="sensor-result" aria-live="polite">El robot espera tus instrucciones.</output></div>
+        </div>
       </div>
       <div class="method-list">
         <details open><summary><span>01</span><h3>Aprendizaje basado en proyectos</h3><b aria-hidden="true">+</b></summary><p>La teoría cobra sentido cuando el estudiante construye, programa, prueba, se equivoca y mejora una solución propia.</p></details>
@@ -122,8 +125,21 @@
       </div>
     </div>
   </section>
+  <section class="faq-section section" id="preguntas" aria-labelledby="faq-title">
+    <div class="container faq-layout">
+      <div class="faq-heading"><p class="eyebrow"><span class="section-index">04</span> Para las familias</p><h2 id="faq-title">Antes de <span class="soft">empezar.</span></h2><p>Respuestas a las dudas más comunes antes de elegir una ruta.</p></div>
+      <div class="faq-list">
+        <div><h3>¿Desde qué edad pueden participar?</h3><p>Hay experiencias desde los 5 años. La ruta se recomienda según la edad, los intereses y el nivel de cada estudiante.</p></div>
+        <div><h3>¿Necesitan conocimientos previos?</h3><p>No. El equipo orienta a cada estudiante desde su punto de partida.</p></div>
+        <div><h3>¿Robótica o programación?</h3><p>En robótica construyen dispositivos con electrónica y código. En programación crean juegos, aplicaciones y otros proyectos digitales.</p></div>
+        <div><h3>¿Qué es la Experiencia STEAM?</h3><p>Una visita gratuita y sin compromiso con orientación y una actividad práctica para conocer la metodología.</p></div>
+        <div><h3>¿Dónde se realizan las actividades?</h3><p>En Cra. 41D #76-281, barrio Las Mercedes, Barranquilla.</p></div>
+        <div><h3>¿Deben llevar computador?</h3><p>Se recomienda para algunas actividades. Si no cuentan con uno, consulten al equipo antes de la visita.</p></div>
+      </div>
+    </div>
+  </section>
   <section class="experience-section section" id="experiencia">
-    <div class="container experience-grid"><div><p class="eyebrow"><span class="section-index">04</span> Venga a conocer STEAM Academy</p><h2>Venga a <br><span>conocernos.</span></h2></div><div class="experience-info"><p>Pregunte al equipo de la academia por una visita y la ruta de aprendizaje adecuada para el estudiante.</p><ol class="steps"><li><span>01</span><div><strong>Recorrido</strong><p>Conozca nuestros espacios</p></div></li><li><span>02</span><div><strong>Actividad práctica</strong><p>Pregunte por las actividades disponibles</p></div></li><li><span>03</span><div><strong>Orientación</strong><p>Encuentre la ruta indicada</p></div></li></ol><button class="button button-dark" type="button" id="open-booking"><span>Hable con el equipo</span><span class="button-arrow" aria-hidden="true">↗</span></button></div></div>
+    <div class="container experience-grid"><div><p class="eyebrow"><span class="section-index">05</span> Venga a conocer STEAM Academy</p><h2>Venga a <br><span>conocernos.</span></h2></div><div class="experience-info"><p>Pregunte al equipo de la academia por una visita y la ruta de aprendizaje adecuada para el estudiante.</p><ol class="steps"><li><span>01</span><div><strong>Recorrido</strong><p>Conozca nuestros espacios</p></div></li><li><span>02</span><div><strong>Actividad práctica</strong><p>Pregunte por las actividades disponibles</p></div></li><li><span>03</span><div><strong>Orientación</strong><p>Encuentre la ruta indicada</p></div></li></ol><button class="button button-dark" type="button" id="open-booking"><span>Hable con el equipo</span><span class="button-arrow" aria-hidden="true">↗</span></button></div></div>
   </section>
   </main>
     <div id="booking-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-title" tabindex="-1">
@@ -134,14 +150,23 @@
         <div class="modal-layout">
           <div class="contact-options">
             <p class="modal-intro">Esta página no recibe solicitudes. Para preguntar por una visita, comuníquese directamente con el equipo de la academia. No comparta datos del estudiante aquí.</p>
-            <a class="button button-lime" href="tel:+573006388207"><span>Llamar al 300 638 8207</span><span class="button-arrow" aria-hidden="true">↗</span></a>
-            <a class="contact-secondary" href="https://www.stemacademy.com.co/curso-robotica-maker">Ver el curso Robótica Maker en el sitio oficial <span aria-hidden="true">↗</span></a>
-            <a class="contact-secondary" href="https://www.stemacademy.com.co/curso-heroes-de-codigo">Ver Héroes de código en el sitio oficial <span aria-hidden="true">↗</span></a>
-            <p class="privacy-note">Consulte la <a href="https://www.stemacademy.com.co/_files/ugd/3ed36b_459591f26558480da16a9f91e3c90976.pdf">política de tratamiento de datos de STEAM Academy (PDF)</a> antes de compartir información personal.</p>
+            <a class="button button-lime" href="tel:+573006388207"><span class="phone-action"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.19 18a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-2.95-8.67A2 2 0 0 1 4.23 1.17h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.19 9.08a16 16 0 0 0 6 6l1.27-1.26a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92Z"/></svg>Llamar al 300 638 8207</span><span class="button-arrow" aria-hidden="true">↗</span></a>
           </div>
         </div>
       </div>
     </div>
-  <footer><div class="container"><div class="footer-top"><a class="brand" href="#home" aria-label="STEAM Academy, inicio"><img src="assets/logo.png" width="175" height="64" alt="" loading="lazy"></a><div><p>Barranquilla, Atlántico</p><a href="https://www.stemacademy.com.co/">Sitio oficial de STEAM Academy ↗</a></div><div><a href="tel:+573006388207">300 638 8207</a><a href="mailto:hello@steamacademy.com.co">hello@steamacademy.com.co</a></div><a class="back-top" href="#home" aria-label="Volver al inicio">↑</a></div><div class="footer-bottom"><span>© STEAM Academy. Contenido e imágenes de la academia.</span><a href="https://www.stemacademy.com.co/_files/ugd/3ed36b_459591f26558480da16a9f91e3c90976.pdf">Política de datos personales (PDF) ↗</a></div><details class="privacy-info"><summary>Información técnica de privacidad</summary><p>Esta página no recoge inscripciones, no añade cookies propias ni guarda datos de visitantes en almacenamiento local. No incorpora analíticas ni rastreadores publicitarios. Las fuentes, las imágenes y el robot se cargan desde el mismo sitio.</p><p>Los enlaces al sitio de la academia y a Instagram abren servicios con sus propias políticas. El servidor que entrega esta página recibe datos técnicos de la conexión, como la dirección IP. Esta información describe el funcionamiento de la página y no sustituye la política de tratamiento de datos de la academia enlazada arriba.</p></details></div></footer>
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand"><a class="brand" href="#home" aria-label="STEAM Academy, inicio"><img src="assets/logo.png" width="175" height="64" alt="" loading="lazy"></a><p>Robótica y programación<br>para aprender creando.</p></div>
+        <div class="footer-details">
+          <div><span class="footer-label">Visítenos</span><address class="footer-address"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Cra. 41D #76-281<br>Las Mercedes, Barranquilla</span></address></div>
+          <div><span class="footer-label">Hablemos</span><a class="footer-phone" href="tel:+573006388207"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.19 18a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-2.95-8.67A2 2 0 0 1 4.23 1.17h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.19 9.08a16 16 0 0 0 6 6l1.27-1.26a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92Z"/></svg>300 638 8207</a><a href="mailto:hello@steamacademy.com.co">hello@steamacademy.com.co</a></div>
+        </div>
+        <a class="back-top" href="#home" aria-label="Volver al inicio">↑</a>
+      </div>
+      <div class="footer-bottom"><span>© STEAM Academy.</span><a href="https://www.stemacademy.com.co/_files/ugd/3ed36b_459591f26558480da16a9f91e3c90976.pdf">Política de datos personales (PDF) ↗</a></div>
+    </div>
+  </footer>
 </body>
 </html>
