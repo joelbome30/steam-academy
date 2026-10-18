@@ -18,7 +18,7 @@ La procedencia no acredita permiso de reproducción ni autorización de imagen. 
 | `logo.png`, `project-1.jpg`, `project-2.jpg`, `project-3.jpg`, `estudiantes.png`, `model.png` | Archivos preexistentes; atribución general en README | Autoría/licencia/permiso PENDIENTES DE CONFIRMAR; las fotos de personas no se muestran en la versión actual |
 | `../model/robot.glb`, `../model/robot-fast.glb` | Archivos preexistentes, sin licencia adjunta del modelo | Autoría/licencia PENDIENTE DE CONFIRMAR; la licencia de Three.js no cubre el modelo |
 | `fonts/*.woff2` | URLs de distribución y licencias en `fonts/` | SIL OFL 1.1, copias sin modificar |
-| `../vendor/` | `THREE-LICENSE.txt` conservado | Three.js MIT; no se modificó el código vendorizado |
+| `../vendor/` | `THREE-LICENSE.txt` y licencia Apache 2.0 de Draco conservadas | Three.js MIT y Draco Apache 2.0; `DRACOLoader.js` importa la copia local de Three.js |
 
 ## Fotografías ilustrativas actuales
 

@@ -27,9 +27,11 @@ El robot 3D carga automáticamente `robot-fast.glb` con el decodificador Draco l
 - `vendor/`: Three.js 0.174.0, decodificador Draco y sus licencias.
 - `model/`: Modelo 3d .glb.
 
-Las fuentes se sirven localmente desde `assets/fonts/`, con alternativa del sistema y licencias SIL OFL 1.1 incluidas. El logotipo y los textos proceden de https://www.stemacademy.com.co/; las fotografías visibles son ilustrativas, se sirven localmente y se acreditan en `assets/SOURCES.md`. La licencia MIT incluida corresponde únicamente a Three.js.
+Las fuentes se sirven localmente desde `assets/fonts/`, con alternativa del sistema y licencias SIL OFL 1.1 incluidas. El logotipo y los textos proceden de https://www.stemacademy.com.co/; las fotografías visibles son ilustrativas, se sirven localmente y se acreditan en `assets/SOURCES.md`. Three.js conserva su licencia MIT y el decodificador Draco su licencia Apache 2.0; ninguna cubre los derechos del modelo 3D.
 
 Esta copia estática no envía solicitudes de inscripción. La ventana de contacto ofrece el teléfono publicado por STEAM Academy; cualquier agendamiento real debe gestionarse por un canal confirmado por la academia. El propietario confirmó el 18 de octubre de 2026 que la sede vigente es Cra. 41D #76-281, Las Mercedes, Barranquilla. La política de datos enlazada todavía muestra otra dirección y requiere actualización por su responsable.
+
+Robótica Maker y Héroes de código enlazan a sus fichas oficiales. No se encontró una ficha oficial verificable para Game Developer ni Developer Junior; sus enlaces llaman al teléfono publicado para consultar esos cursos directamente, sin fingir una página de detalle o reserva.
 
 La paleta toma el azul `#116DFF`, el gris `#303232` y el blanco del sitio oficial. La cabecera es fija al desplazarse; la portada se distribuye según la altura disponible de la ventana, con desplazamiento normal en alturas muy pequeñas o al ampliar el texto.
 
