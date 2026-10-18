@@ -92,8 +92,13 @@
   const runButton = document.querySelector('#run-program');
   const resetButton = document.querySelector('#reset-program');
   const blockNames = { forward: 'Avanzar una casilla', left: 'Girar a la izquierda', right: 'Girar a la derecha', sensor: 'Si hay obstáculo, parar' };
+  const boardColumns = 6;
+  const boardRows = 5;
+  const start = { x: 0, y: 2, direction: 0 };
+  const obstacle = { x: 3, y: 2 };
+  const goal = { x: 5, y: 2 };
   const program = [];
-  let robot = { x: 0, y: 2, direction: 0 };
+  let robot = { ...start };
   let runningProgram = false;
   let confettiTimer;
   function paintRobot() {
@@ -219,7 +224,7 @@
       if (type === 'sensor') {
         sensorEnabled = true;
         const next = nextCell();
-        if (next.x === 4 && next.y === 2) {
+        if (next.x === obstacle.x && next.y === obstacle.y) {
           result.textContent = 'Sensor activado: hay un obstáculo. El robot se detiene.';
           stopped = true;
         } else result.textContent = 'Sensor activado: el camino está libre.';
@@ -231,14 +236,14 @@
         paintRobot();
       } else {
         const next = nextCell();
-        if (next.x < 0 || next.x > 6 || next.y < 0 || next.y > 3) {
+        if (next.x < 0 || next.x >= boardColumns || next.y < 0 || next.y >= boardRows) {
           result.textContent = 'El borde del tablero detuvo el robot. Prueba otra secuencia.';
           stopped = true;
-        } else if (next.x === 4 && next.y === 2) {
+        } else if (next.x === obstacle.x && next.y === obstacle.y) {
           result.textContent = sensorEnabled ? 'Sensor activado: hay un obstáculo. El robot se detiene.' : 'El robot encontró un obstáculo y se detuvo.';
           stopped = true;
         } else {
-          reachedGoal = next.x === 6 && next.y === 2;
+          reachedGoal = next.x === goal.x && next.y === goal.y;
           if (reachedGoal) robotBoard.classList.add('is-complete');
           robot = { ...robot, ...next };
           paintRobot();
@@ -260,7 +265,7 @@
   resetButton.addEventListener('click', () => {
     if (runningProgram) return;
     program.length = 0;
-    robot = { x: 0, y: 2, direction: 0 };
+    robot = { ...start };
     robotBoard.classList.remove('is-complete');
     clearTimeout(confettiTimer);
     goalConfetti.replaceChildren();
@@ -506,6 +511,7 @@
   if (openBooking && bookingModal) {
     let returnFocus;
     let previousOverflow;
+    let closing = false;
     const background = [...document.body.children].filter(element => element !== bookingModal && element.tagName !== 'SCRIPT');
     let previousInert;
     const closeButton = bookingModal.querySelector('.modal-close');
@@ -519,11 +525,19 @@
       closeButton.focus();
       animateUI(bookingModal.querySelector('.modal-panel'), [{ opacity: 0, transform: 'translateY(16px) scale(.98)' }, { opacity: 1, transform: 'none' }], 280);
     };
-    const hideModal = () => {
+    const hideModal = async () => {
+      if (closing || bookingModal.getAttribute('aria-hidden') === 'true') return;
+      closing = true;
+      const animation = animateUI(bookingModal.querySelector('.modal-panel'), [
+        { opacity: 1, transform: 'none' },
+        { opacity: 0, transform: 'translateY(10px) scale(.98)' }
+      ], 180);
+      if (animation) await animation.finished.catch(() => {});
       bookingModal.setAttribute('aria-hidden', 'true');
       background.forEach((element, index) => { element.inert = previousInert[index]; });
       document.body.style.overflow = previousOverflow;
       returnFocus?.focus();
+      closing = false;
     };
     openBooking.addEventListener('click', showModal);
     bookingModal.addEventListener('click', e => { if (e.target && e.target.dataset && e.target.dataset.close) hideModal(); });
@@ -541,6 +555,18 @@
   const openCookies = document.querySelector('#open-cookies');
   const cookiesDialog = document.querySelector('#cookies-dialog');
   if (openCookies && cookiesDialog) {
+    let closing = false;
+    const closeCookies = async () => {
+      if (closing || !cookiesDialog.open) return;
+      closing = true;
+      const animation = animateUI(cookiesDialog, [
+        { opacity: 1, transform: 'none' },
+        { opacity: 0, transform: 'translateY(8px)' }
+      ], 180);
+      if (animation) await animation.finished.catch(() => {});
+      cookiesDialog.close();
+      closing = false;
+    };
     openCookies.addEventListener('click', () => {
       cookiesDialog.showModal();
       cookiesDialog.querySelector('#close-cookies').focus();
@@ -549,7 +575,8 @@
         { opacity: 1, transform: 'none' }
       ], 240);
     });
-    cookiesDialog.querySelector('#close-cookies').addEventListener('click', () => cookiesDialog.close());
+    cookiesDialog.querySelector('#close-cookies').addEventListener('click', closeCookies);
+    cookiesDialog.addEventListener('cancel', event => { event.preventDefault(); closeCookies(); });
     cookiesDialog.addEventListener('close', () => openCookies.focus());
   }
 })();

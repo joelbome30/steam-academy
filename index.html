@@ -20,8 +20,8 @@
   <link rel="preload" href="model/robot-fast.glb" as="fetch" crossorigin fetchpriority="high">
   <link rel="preload" href="vendor/draco/draco_wasm_wrapper.js" as="fetch" crossorigin>
   <link rel="preload" href="vendor/draco/draco_decoder.wasm" as="fetch" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=32">
-  <script src="script.js?v=18" defer></script>
+  <link rel="stylesheet" href="styles.css?v=35">
+  <script src="script.js?v=20" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -113,7 +113,7 @@
       <div class="robot-logic">
         <div class="robot-workbench">
           <div class="workbench-heading"><div><h3>Del sensor al movimiento.</h3><p>Arma una secuencia y mira qué hace el robot. Añade bloques, ordénalos y ejecútalos.</p></div><span class="workbench-mark">01—04</span></div>
-          <div class="robot-simulation"><div class="robot-board" id="robot-board" role="img" aria-label="Tablero de siete columnas y cuatro filas. El robot empieza mirando a la derecha; una barrera bloquea la quinta columna de la tercera fila y una bandera a cuadros marca la meta en la última columna."><span class="board-obstacle" aria-hidden="true"></span><span class="board-goal" aria-hidden="true"></span><span class="robot-sprite" id="robot-sprite" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 5 53 45H11L32 5Z" fill="currentColor"/><circle cx="32" cy="37" r="5" fill="#fff"/><path d="M18 48h28l5 8H13l5-8Z" fill="#d3d9cf"/><circle cx="20" cy="55" r="4" fill="#20211f"/><circle cx="44" cy="55" r="4" fill="#20211f"/></svg></span><span class="goal-confetti" id="goal-confetti" aria-hidden="true"></span></div><div class="board-labels"><span>Inicio</span><span>Obstáculo</span><span>Meta</span></div></div>
+          <div class="robot-simulation"><div class="robot-board" id="robot-board" role="img" aria-label="Tablero de seis columnas y cinco filas. El robot empieza en la primera columna de la tercera fila, mirando a la derecha. Hay un obstáculo en la cuarta columna y una bandera de meta en la sexta columna de esa fila."><span class="board-obstacle" aria-hidden="true"></span><span class="board-goal" aria-hidden="true"></span><span class="robot-sprite" id="robot-sprite" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 5 53 45H11L32 5Z" fill="currentColor"/><circle cx="32" cy="37" r="5" fill="#fff"/><path d="M18 48h28l5 8H13l5-8Z" fill="#d3d9cf"/><circle cx="20" cy="55" r="4" fill="#20211f"/><circle cx="44" cy="55" r="4" fill="#20211f"/></svg></span><span class="goal-confetti" id="goal-confetti" aria-hidden="true"></span></div><div class="board-labels"><span>Inicio</span><span>Obstáculo</span><span>Meta</span></div></div>
         </div>
         <div class="block-programmer">
           <div class="block-palette" aria-label="Bloques disponibles"><p class="block-label">ELIGE UN BLOQUE</p><button type="button" class="add-block block-forward" data-block="forward"><span aria-hidden="true">↟</span>Avanzar una casilla</button><button type="button" class="add-block block-left" data-block="left"><span aria-hidden="true">↶</span>Girar a la izquierda</button><button type="button" class="add-block block-right" data-block="right"><span aria-hidden="true">↷</span>Girar a la derecha</button><button type="button" class="add-block block-sensor" data-block="sensor"><span aria-hidden="true">◉</span>Si hay obstáculo, parar</button></div>
@@ -174,8 +174,6 @@
   <dialog id="cookies-dialog" class="cookies-dialog" aria-labelledby="cookies-title">
     <div class="cookies-heading"><h2 id="cookies-title">Cookies en esta página</h2><button type="button" class="modal-close" id="close-cookies" aria-label="Cerrar información sobre cookies">×</button></div>
     <p>El código de esta página no crea cookies ni guarda información en el almacenamiento del navegador. Tampoco incluye analítica, publicidad o videos incrustados.</p>
-    <p>La página se aloja en GitHub Pages. GitHub puede registrar la dirección IP de las visitas por seguridad; eso no es una cookie creada por esta página. <a href="https://docs.github.com/es/pages/getting-started-with-github-pages/what-is-github-pages" target="_blank" rel="noopener noreferrer">Conoce cómo funciona GitHub Pages ↗</a></p>
-    <p>Si abres enlaces a otros sitios, sus propias políticas y cookies pueden aplicarse allí.</p>
   </dialog>
 </body>
 </html>
