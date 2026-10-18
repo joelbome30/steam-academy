@@ -46,12 +46,21 @@
   const explorer = document.querySelector('.course-explorer');
   const courseTabs = [...explorer.querySelectorAll('[role="tab"]')];
   const coursePanels = [...explorer.querySelectorAll('.course-card')];
+  let courseAnimation;
   function selectCourse(index, moveFocus = false) {
+    const changed = courseTabs[index].getAttribute('aria-selected') !== 'true';
+    if (changed) courseAnimation?.cancel();
     courseTabs.forEach((tab, i) => {
       tab.setAttribute('aria-selected', String(i === index));
       tab.tabIndex = i === index ? 0 : -1;
       coursePanels[i].hidden = i !== index;
     });
+    if (changed && explorer.classList.contains('is-interactive')) {
+      courseAnimation = animateUI(coursePanels[index], [
+        { opacity: 0, transform: 'translateY(8px)' },
+        { opacity: 1, transform: 'none' }
+      ], 220);
+    }
     if (moveFocus) courseTabs[index].focus();
   }
   coursePanels.forEach((panel, i) => {
