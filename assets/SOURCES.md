@@ -35,3 +35,11 @@ Las siete fotografías siguientes se optimizaron localmente a WebP sin recortar 
 | `learning-robot-photo.webp` | [Marília Castelli: robot educativo](https://unsplash.com/photos/blue-and-black-continuous-track-l74VaCZon7I) |
 
 Los originales de STEAM Academy permanecen en el repositorio como material de referencia. Sus permisos de reutilización y de imagen siguen pendientes de documentación.
+
+
+`model.webp` es una versión de entrega optimizada (960 × 540 px, 44 KB) derivada de `model.png`, conservando la ilustración preexistente del robot. La atribución y los permisos pendientes son los mismos que para el original.
+
+
+## Portadas del blog oficial
+
+Las fichas del archivo utilizan las imágenes destacadas de las publicaciones correspondientes, servidas por la CDN pública de Wix en formato WebP/AVIF y con tamaño transformado para reducir la descarga. Se identificaron desde el [blog oficial de STEAM Academy](https://www.steamacademy.com.co/blog); los enlaces de cada ficha llevan al artículo original. La entrada «Proyecto Modo Oscuro Dinámico» no mostraba portada en el índice oficial, por lo que usa `blog-cover-modo-oscuro.svg`, una ilustración editorial creada para este catálogo y señalada como tal. El uso público no acredita una licencia abierta; el permiso de reutilización de las imágenes oficiales sigue pendiente de documentación del titular.

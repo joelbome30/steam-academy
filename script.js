@@ -2,9 +2,9 @@
   'use strict';
   const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   const activeMotion = new Set();
-  function animateUI(element, frames, duration = 320, delay = 0) {
+  function animateUI(element, frames, duration = 320, delay = 0, fill = 'auto') {
     if (!element || motionPreference.matches || !element.animate) return;
-    const animation = element.animate(frames, { duration, delay, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const animation = element.animate(frames, { duration, delay, fill, easing: 'cubic-bezier(.22,1,.36,1)' });
     activeMotion.add(animation);
     const forget = () => activeMotion.delete(animation);
     animation.addEventListener('finish', forget, { once: true });
@@ -14,6 +14,59 @@
   motionPreference.addEventListener('change', () => {
     if (motionPreference.matches) [...activeMotion].forEach(animation => animation.finish());
   });
+  function bindAnimatedDisclosure(details) {
+    const summary = details.querySelector('summary');
+    const panel = details.querySelector('.method-answer, .faq-answer');
+    let activeAnimation;
+    let openingFrame;
+    if (!summary || !panel) return;
+    summary.addEventListener('click', event => {
+      event.preventDefault();
+      if (openingFrame) cancelAnimationFrame(openingFrame);
+      if (activeAnimation) activeAnimation.cancel();
+      if (motionPreference.matches || !panel.animate) {
+        details.open = !details.open;
+        panel.style.height = '';
+        panel.style.overflow = '';
+        panel.style.opacity = '';
+        return;
+      }
+      const cleanPanel = () => {
+        panel.style.height = '';
+        panel.style.overflow = '';
+        panel.style.opacity = '';
+      };
+      const animatePanel = (from, to, finish) => {
+        const animation = animateUI(panel, [from, to], 360, 0, 'both');
+        if (!animation) { finish(); cleanPanel(); return; }
+        activeAnimation = animation;
+        animation.finished.then(() => {
+          if (activeAnimation !== animation) return;
+          activeAnimation = null;
+          finish();
+          cleanPanel();
+          animation.cancel();
+        }).catch(() => {});
+      };
+      if (details.open) {
+        const height = panel.getBoundingClientRect().height;
+        panel.style.height = `${height}px`;
+        panel.style.overflow = 'hidden';
+        animatePanel({ height: `${height}px`, opacity: 1 }, { height: '0px', opacity: 0 }, () => { details.open = false; });
+      } else {
+        details.open = true;
+        panel.style.height = '0px';
+        panel.style.overflow = 'hidden';
+        panel.style.opacity = '0';
+        openingFrame = requestAnimationFrame(() => {
+          openingFrame = null;
+          const height = panel.scrollHeight;
+          animatePanel({ height: '0px', opacity: 0 }, { height: `${height}px`, opacity: 1 }, () => {});
+        });
+      }
+    });
+  }
+  document.querySelectorAll('.method-list details, .faq-item').forEach(bindAnimatedDisclosure);
   const menu = document.querySelector('.menu-toggle');
   const navigation = document.querySelector('#navigation');
   function closeMenu() {
@@ -82,6 +135,30 @@
   explorer.classList.add('is-interactive');
   explorer.querySelector('.course-tabs').hidden = false;
   selectCourse(0);
+
+  // Give important content a small entrance as it scrolls into view.
+  if (!motionPreference.matches && 'IntersectionObserver' in window) {
+    const motionTargets = document.querySelectorAll(
+      '.courses-section .section-heading, .course-explorer, .course-outcomes, ' +
+      '.community-section .section-heading, .photo-grid figure, .method-heading, ' +
+      '.robot-logic, .method-list details, .faq-heading, .faq-item, .experience-grid > *'
+    );
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const index = [...motionTargets].indexOf(entry.target);
+        animateUI(entry.target, [
+          { opacity: 0, transform: 'translateY(16px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], 460, Math.min(index % 4, 3) * 45);
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    motionTargets.forEach(item => {
+      item.classList.add('scroll-motion-item');
+      revealObserver.observe(item);
+    });
+  }
 
   // A small, local block-programming exercise: no data leaves the page.
   const programList = document.querySelector('#robot-program');
@@ -277,18 +354,51 @@
   paintRobot();
   runButton.disabled = true;
 
-  // The decorative scene starts automatically; the image stays visible while loading.
+  // Keep the animated model off touch devices and constrained connections/devices.
+  // The optimized image is the complete default experience on phones.
   const robotStatus = document.querySelector('.robot-status');
   const robotLoading = document.querySelector('.robot-progress');
-  robotLoading.hidden = false;
-  robotStatus.textContent = 'Cargando el modelo 3D del robot.';
-  import('./vendor/three.module.js').then(createScene).then(() => {
-    robotStatus.textContent = 'Robot de ruedas con sensores y circuitos. Puede explorarlo con los botones de giro o arrastrándolo.';
-  }).catch(() => {
-    robotLoading.hidden = true;
-    document.querySelector('#robot-scene').classList.remove('scene-ready');
-    robotStatus.textContent = 'Vista estática de un robot de ruedas con sensores y circuitos. La vista 3D no está disponible.';
-  });
+  const robotHost = document.querySelector('#robot-scene');
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const compactDevice = matchMedia('(max-width: 800px), (pointer: coarse)').matches;
+  const limitedMemory = Number.isFinite(navigator.deviceMemory) && navigator.deviceMemory <= 4;
+  const limitedCPU = Number.isFinite(navigator.hardwareConcurrency) && navigator.hardwareConcurrency <= 4;
+  const shouldSkip3D = compactDevice || limitedMemory || limitedCPU || connection?.saveData || motionPreference.matches;
+  if (shouldSkip3D) {
+    robotStatus.textContent = 'Vista estática optimizada del robot. La animación 3D se reserva para equipos de escritorio.';
+  } else {
+    let sceneStarted = false;
+    const startScene = () => {
+      if (sceneStarted) return;
+      if (document.hidden) {
+        const resumeWhenVisible = () => {
+          if (!document.hidden) {
+            document.removeEventListener('visibilitychange', resumeWhenVisible);
+            startScene();
+          }
+        };
+        document.addEventListener('visibilitychange', resumeWhenVisible);
+        return;
+      }
+      sceneStarted = true;
+      robotLoading.hidden = false;
+      robotStatus.textContent = 'Cargando el modelo 3D del robot.';
+      import('./vendor/three.module.js').then(createScene).then(() => {
+        robotStatus.textContent = 'Robot de ruedas con sensores y circuitos. Puede explorarlo con los botones de giro o arrastrándolo.';
+      }).catch(() => {
+        robotLoading.hidden = true;
+        robotHost.classList.remove('scene-ready');
+        robotStatus.textContent = 'Vista estática de un robot de ruedas con sensores y circuitos. La vista 3D no está disponible.';
+      });
+    };
+    const sceneObserver = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      sceneObserver.disconnect();
+      if ('requestIdleCallback' in window) requestIdleCallback(startScene, { timeout: 1800 });
+      else setTimeout(startScene, 300);
+    }, { rootMargin: '80px 0px', threshold: 0.01 });
+    sceneObserver.observe(robotHost);
+  }
 
   async function createScene(THREE) {
     const host = document.querySelector('#robot-scene');
@@ -296,8 +406,8 @@
     canvas.style.touchAction = 'pan-y';
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const scene = new THREE.Scene();
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'low-power' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25));
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -306,25 +416,7 @@
     camera.position.set(0, 1.1, 5.7);
     camera.lookAt(0, .12, 0);
 
-    // Studio lighting is built locally; no remote environment maps are needed.
-    const studio = new THREE.Scene();
-    studio.background = new THREE.Color(0x333a2c);
-    const panels = [
-      { position: [-4, 5, 3], size: [4, 8, 1], color: 0xffffff },
-      { position: [5, 2, 1], size: [2, 8, 2], color: 0xd3ffa2 },
-      { position: [0, 5, -4], size: [6, 2, 1], color: 0xf6f3e5 },
-      { position: [0, -4, 2], size: [4, 1, 3], color: 0x36472a }
-    ];
-    for (const item of panels) {
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(...item.size), new THREE.MeshBasicMaterial({ color: item.color }));
-      panel.position.set(...item.position);
-      studio.add(panel);
-    }
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const environment = pmrem.fromScene(studio, .04);
-    scene.environment = environment.texture;
-    studio.traverse(object => { if (object.isMesh) { object.geometry.dispose(); object.material.dispose(); } });
-    pmrem.dispose();
+    // Direct lights avoid creating a PMREM environment render target at startup.
     scene.add(new THREE.HemisphereLight(0xf4ffe5, 0x26361b, 2));
     const key = new THREE.DirectionalLight(0xffffff, 4);
     key.position.set(-3, 6, 7); scene.add(key);
@@ -364,10 +456,6 @@
       let gltf;
       try {
         gltf = await loadModel('./model/robot-fast.glb');
-      } catch (error) {
-        console.warn('La versión comprimida del robot no se pudo cargar; se intenta el modelo original.', error);
-        setProgress(0);
-        gltf = await loadModel('./model/robot.glb');
       } finally {
         dracoLoader.dispose();
       }
@@ -397,7 +485,6 @@
     } catch (error) {
       console.warn('No se pudo cargar el robot GLB; se muestra la imagen de respaldo.', error);
       robotLoading.hidden = true;
-      environment.texture.dispose();
       renderer.dispose();
       throw error;
     }
@@ -432,13 +519,18 @@
       renderer.render(scene, camera);
     }
     function tick(time) {
-      if (time - last >= 32) render(time);
+      if (time - last >= 50) render(time);
       frame = requestAnimationFrame(tick);
     }
     function update() {
       cancelAnimationFrame(frame);
+      const actionLabel = paused ? 'Reanudar movimiento' : 'Pausar movimiento';
       pauseButton.disabled = reduced.matches;
-      pauseButton.textContent = reduced.matches ? 'Movimiento reducido' : paused ? 'Reanudar movimiento' : 'Pausar movimiento';
+      pauseButton.setAttribute('aria-label', reduced.matches ? 'Movimiento reducido' : actionLabel);
+      pauseButton.title = reduced.matches ? 'Movimiento reducido' : actionLabel;
+      pauseButton.innerHTML = paused
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
       last = performance.now();
       if (!document.hidden && visible && !lost) {
         render(last);
