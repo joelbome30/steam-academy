@@ -16,9 +16,9 @@ La procedencia no acredita permiso de reproducción ni autorización de imagen. 
 | --- | --- | --- |
 | `steam-*.webp` | Publicaciones oficiales enlazadas arriba | Permiso de reutilización y autorizaciones de imagen PENDIENTES DE CONFIRMAR |
 | `logo.png`, `project-1.jpg`, `project-2.jpg`, `project-3.jpg`, `estudiantes.png`, `model.png` | Archivos preexistentes; atribución general en README | Autoría/licencia/permiso PENDIENTES DE CONFIRMAR; las fotos de personas no se muestran en la versión actual |
-| `../model/robot.glb`, `../model/robot-fast.glb` | Archivos preexistentes, sin licencia adjunta del modelo | Autoría/licencia PENDIENTE DE CONFIRMAR; la licencia de Three.js no cubre el modelo |
+| `../model/robot.glb`, `../model/robot-fast.glb` | Archivos preexistentes, sin licencia adjunta del modelo | Autoría/licencia PENDIENTE DE CONFIRMAR; la licencia de PlayCanvas no cubre el modelo |
 | `fonts/*.woff2` | URLs de distribución y licencias en `fonts/` | SIL OFL 1.1, copias sin modificar |
-| `../vendor/` | `THREE-LICENSE.txt` y licencia Apache 2.0 de Draco conservadas | Three.js MIT y Draco Apache 2.0; `DRACOLoader.js` importa la copia local de Three.js |
+| `../vendor/` | PlayCanvas 2.23.3 de npm y decodificador Draco del sitio de PlayCanvas, con licencias locales | PlayCanvas MIT y Draco Apache 2.0 |
 
 ## Fotografías ilustrativas actuales
 

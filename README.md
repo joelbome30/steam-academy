@@ -16,18 +16,19 @@ python -m http.server 5500 --bind 127.0.0.1
 
 No se requiere instalar paquetes ni compilar. Para cargar el módulo 3D se debe servir por HTTP; al abrir `index.html` directamente como archivo puede utilizarse únicamente la ilustración de respaldo.
 
-El robot 3D carga automáticamente `robot-fast.glb` con el decodificador Draco local. Si falla esa carga, intenta el modelo original; la imagen de respaldo permanece visible durante la carga o si WebGL falla. El modelo original se conserva para ese caso.
+El visor usa PlayCanvas Engine 2.23.3 con WebGL2 y la resolución nativa del dispositivo. Carga automáticamente `robot-fast.glb` con el decodificador Draco local. Si falla esa carga, intenta el modelo original; la imagen de respaldo permanece visible durante la carga o si WebGL2 falla. El modelo original se conserva para ese caso. El procedimiento de medición física está en [`BENCHMARK.md`](BENCHMARK.md).
 
 ## Archivos
 
 - `index.html`: contenido, navegación y secciones.
 - `styles.css`: diseño, adaptación a pantallas y robot de respaldo.
-- `script.js`: menú móvil, ventana de contacto y escena 3D.
+- `script.js`: interacciones de la página e inicio del visor 3D.
+- `robot-viewer.js`: escena PlayCanvas, carga del GLB, iluminación, controles y medición FPS.
 - `assets/`: logotipo y fotografías. `estudiantes.png` pertenece a la primera propuesta y ya no se utiliza.
-- `vendor/`: Three.js 0.174.0, decodificador Draco y sus licencias.
+- `vendor/`: PlayCanvas Engine 2.23.3, decodificador Draco y sus licencias.
 - `model/`: Modelo 3d .glb.
 
-Las fuentes se sirven localmente desde `assets/fonts/`, con alternativa del sistema y licencias SIL OFL 1.1 incluidas. El logotipo y los textos proceden de https://www.stemacademy.com.co/; las fotografías visibles son ilustrativas, se sirven localmente y se acreditan en `assets/SOURCES.md`. Three.js conserva su licencia MIT y el decodificador Draco su licencia Apache 2.0; ninguna cubre los derechos del modelo 3D.
+Las fuentes se sirven localmente desde `assets/fonts/`, con alternativa del sistema y licencias SIL OFL 1.1 incluidas. El logotipo y los textos proceden de https://www.stemacademy.com.co/; las fotografías visibles son ilustrativas, se sirven localmente y se acreditan en `assets/SOURCES.md`. PlayCanvas conserva su licencia MIT y el decodificador Draco su licencia Apache 2.0; ninguna cubre los derechos del modelo 3D.
 
 Esta copia estática no envía solicitudes de inscripción. La ventana de contacto ofrece el teléfono publicado por STEAM Academy; cualquier agendamiento real debe gestionarse por un canal confirmado por la academia. El propietario confirmó el 18 de octubre de 2026 que la sede vigente es Cra. 41D #76-281, Las Mercedes, Barranquilla. La política de datos enlazada todavía muestra otra dirección y requiere actualización por su responsable.
 
