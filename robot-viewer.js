@@ -188,7 +188,7 @@ export async function createRobotViewer() {
   }
 
   let visible = true, lost = false, paused = false, elapsed = 0, lastMotion = performance.now();
-  let lastRequest = 0, lastRendered = 0;
+  let lastRendered = 0;
   const intervals = [];
   const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0.06, smoothYaw: 0, smoothPitch: 0.06, pointerId: null };
   const motionEnabled = () => !paused && !reduced.matches;
@@ -233,11 +233,10 @@ export async function createRobotViewer() {
   }
   app.on('update', () => {
     if (!canRender() || !motionEnabled()) return;
-    const now = performance.now();
-    if (now - lastRequest >= 32) {
-      lastRequest = now;
-      requestFrame();
-    }
+    // Let PlayCanvas follow the display's requestAnimationFrame cadence.
+    // A 32 ms gate capped motion at ~30 fps and made it judder on 60/75 Hz screens.
+    pose(performance.now());
+    app.renderNextFrame = true;
   });
   app.on('postrender', () => {
     const now = performance.now();
@@ -276,8 +275,10 @@ export async function createRobotViewer() {
   });
   canvas.addEventListener('pointermove', event => {
     if (!drag.active || event.pointerId !== drag.pointerId) return;
-    drag.yaw += (event.clientX - drag.lastX) * 0.004;
-    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch + (event.clientY - drag.lastY) * 0.003));
+    const dx = Math.max(-80, Math.min(80, event.clientX - drag.lastX));
+    const dy = Math.max(-80, Math.min(80, event.clientY - drag.lastY));
+    drag.yaw += dx * 0.002;
+    drag.pitch = Math.max(-0.28, Math.min(0.28, drag.pitch + dy * 0.0015));
     drag.lastX = event.clientX;
     drag.lastY = event.clientY;
     if (!motionEnabled()) requestFrame();
