@@ -190,7 +190,7 @@ export async function createRobotViewer() {
   let visible = true, lost = false, paused = false, elapsed = 0, lastMotion = performance.now();
   let lastRequest = 0, lastRendered = 0;
   const intervals = [];
-  const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0.06, pointerId: null };
+  const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0.06, smoothYaw: 0, smoothPitch: 0.06, pointerId: null };
   const motionEnabled = () => !paused && !reduced.matches;
   const canRender = () => !document.hidden && visible && !lost;
   function pose(time) {
@@ -198,11 +198,15 @@ export async function createRobotViewer() {
     lastMotion = time;
     if (motionEnabled()) elapsed += dt;
     const t = elapsed;
+    // Ease the user's input so a small pointer jump cannot make the robot flip.
+    const blend = motionEnabled() ? 1 - Math.exp(-dt * 9) : 1;
+    drag.smoothYaw += (drag.yaw - drag.smoothYaw) * blend;
+    drag.smoothPitch += (drag.pitch - drag.smoothPitch) * blend;
     robot.setLocalPosition(0, Math.sin(t * 0.65) * 0.035, 0);
     robot.setLocalEulerAngles(
-      (drag.pitch + (!drag.active ? Math.cos(t * 0.4) * 0.02 : 0)) * 180 / Math.PI,
-      (drag.yaw + (!drag.active ? Math.sin(t * 0.35) * 0.16 : 0)) * 180 / Math.PI,
-      (-0.10 + (!drag.active ? Math.sin(t * 0.5) * 0.015 : 0)) * 180 / Math.PI
+      (drag.smoothPitch + (!drag.active ? Math.cos(t * 0.4) * 0.012 : 0)) * 180 / Math.PI,
+      (drag.smoothYaw + (!drag.active ? Math.sin(t * 0.24) * 0.10 : 0)) * 180 / Math.PI,
+      (-0.035 + (!drag.active ? Math.sin(t * 0.5) * 0.006 : 0)) * 180 / Math.PI
     );
   }
   function requestFrame() {
@@ -272,8 +276,8 @@ export async function createRobotViewer() {
   });
   canvas.addEventListener('pointermove', event => {
     if (!drag.active || event.pointerId !== drag.pointerId) return;
-    drag.yaw += (event.clientX - drag.lastX) * 0.008;
-    drag.pitch = Math.max(-1.1, Math.min(1.1, drag.pitch + (event.clientY - drag.lastY) * 0.006));
+    drag.yaw += (event.clientX - drag.lastX) * 0.004;
+    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch + (event.clientY - drag.lastY) * 0.003));
     drag.lastX = event.clientX;
     drag.lastY = event.clientY;
     if (!motionEnabled()) requestFrame();
@@ -286,7 +290,7 @@ export async function createRobotViewer() {
   };
   canvas.addEventListener('pointerup', stopDrag);
   canvas.addEventListener('pointercancel', stopDrag);
-  canvas.addEventListener('pointerleave', stopDrag);
+  canvas.addEventListener('lostpointercapture', stopDrag);
   pauseButton.addEventListener('click', () => { paused = !paused; updateState(); });
   for (const [selector, direction] of [['#robot-left', -1], ['#robot-right', 1]]) {
     document.querySelector(selector).addEventListener('click', () => {
