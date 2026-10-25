@@ -2,9 +2,9 @@
   'use strict';
   const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   const activeMotion = new Set();
-  function animateUI(element, frames, duration = 320, delay = 0) {
+  function animateUI(element, frames, duration = 320, delay = 0, fill = 'auto') {
     if (!element || motionPreference.matches || !element.animate) return;
-    const animation = element.animate(frames, { duration, delay, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const animation = element.animate(frames, { duration, delay, fill, easing: 'cubic-bezier(.22,1,.36,1)' });
     activeMotion.add(animation);
     const forget = () => activeMotion.delete(animation);
     animation.addEventListener('finish', forget, { once: true });
@@ -14,6 +14,60 @@
   motionPreference.addEventListener('change', () => {
     if (motionPreference.matches) [...activeMotion].forEach(animation => animation.finish());
   });
+  function bindAnimatedDisclosure(details) {
+    const summary = details.querySelector('summary');
+    const panel = details.querySelector('.method-answer, .faq-answer');
+    let activeAnimation;
+    let targetOpen = details.open;
+    if (!summary || !panel) return;
+    summary.addEventListener('click', event => {
+      event.preventDefault();
+      targetOpen = !targetOpen;
+      const shouldOpen = targetOpen;
+      const currentHeight = details.open ? panel.getBoundingClientRect().height : 0;
+      const currentOpacity = details.open
+        ? (Number.parseFloat(getComputedStyle(panel).opacity) || 0)
+        : 0;
+      if (activeAnimation) activeAnimation.cancel();
+      activeAnimation = null;
+      if (motionPreference.matches || !panel.animate) {
+        details.open = shouldOpen;
+        cleanPanel();
+        return;
+      }
+      details.open = true;
+      panel.style.height = `${currentHeight}px`;
+      panel.style.overflow = 'hidden';
+      panel.style.opacity = String(currentOpacity);
+      const animatePanel = (from, to, finish) => {
+        const animation = animateUI(panel, [from, to], 360, 0, 'both');
+        if (!animation) { finish(); cleanPanel(); return; }
+        activeAnimation = animation;
+        animation.finished.then(() => {
+          if (activeAnimation !== animation) return;
+          activeAnimation = null;
+          finish();
+          cleanPanel();
+          animation.cancel();
+        }).catch(() => {});
+      };
+      if (shouldOpen) {
+        const targetHeight = panel.scrollHeight;
+        animatePanel({ height: `${currentHeight}px`, opacity: currentOpacity }, { height: `${targetHeight}px`, opacity: 1 }, () => {});
+      } else {
+        animatePanel({ height: `${currentHeight}px`, opacity: currentOpacity }, { height: '0px', opacity: 0 }, () => {
+          details.open = false;
+        });
+      }
+    });
+
+    function cleanPanel() {
+      panel.style.height = '';
+      panel.style.overflow = '';
+      panel.style.opacity = '';
+    }
+  }
+  document.querySelectorAll('.method-list details, .faq-item').forEach(bindAnimatedDisclosure);
   const menu = document.querySelector('.menu-toggle');
   const navigation = document.querySelector('#navigation');
   function closeMenu() {
@@ -82,6 +136,30 @@
   explorer.classList.add('is-interactive');
   explorer.querySelector('.course-tabs').hidden = false;
   selectCourse(0);
+
+  // Give important content a small entrance as it scrolls into view.
+  if (!motionPreference.matches && 'IntersectionObserver' in window) {
+    const motionTargets = document.querySelectorAll(
+      '.courses-section .section-heading, .course-explorer, .course-outcomes, ' +
+      '.community-section .section-heading, .photo-grid figure, .method-heading, ' +
+      '.robot-logic, .method-list details, .faq-heading, .faq-item, .experience-grid > *'
+    );
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const index = [...motionTargets].indexOf(entry.target);
+        animateUI(entry.target, [
+          { opacity: 0, transform: 'translateY(16px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], 460, Math.min(index % 4, 3) * 45);
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    motionTargets.forEach(item => {
+      item.classList.add('scroll-motion-item');
+      revealObserver.observe(item);
+    });
+  }
 
   // A small, local block-programming exercise: no data leaves the page.
   const programList = document.querySelector('#robot-program');
@@ -277,7 +355,7 @@
   paintRobot();
   runButton.disabled = true;
 
-  // The decorative scene starts automatically; the image stays visible while loading.
+  // The PlayCanvas scene starts automatically; the image remains visible during loading.
   const robotStatus = document.querySelector('.robot-status');
   const robotLoading = document.querySelector('.robot-progress');
   robotLoading.hidden = false;
