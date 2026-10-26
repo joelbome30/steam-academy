@@ -137,26 +137,34 @@
   explorer.querySelector('.course-tabs').hidden = false;
   selectCourse(0);
 
-  // Give important content a small entrance as it scrolls into view.
+  // Set the starting position before observing off-screen content. Starting a
+  // fade only after it is already visible made it flash on fast scrolls.
   if (!motionPreference.matches && 'IntersectionObserver' in window) {
-    const motionTargets = document.querySelectorAll(
+    const motionTargets = [...document.querySelectorAll(
       '.courses-section .section-heading, .course-explorer, .course-outcomes, ' +
       '.community-section .section-heading, .photo-grid figure, .method-heading, ' +
       '.robot-logic, .method-list details, .faq-heading, .faq-item, .experience-grid > *'
-    );
+    )];
     const revealObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        const index = [...motionTargets].indexOf(entry.target);
-        animateUI(entry.target, [
-          { opacity: 0, transform: 'translateY(16px)' },
-          { opacity: 1, transform: 'translateY(0)' }
-        ], 460, Math.min(index % 4, 3) * 45);
+        const item = entry.target;
         revealObserver.unobserve(entry.target);
+        item.classList.add('scroll-motion-revealed');
+        const cleanup = () => item.classList.remove('scroll-motion-pending', 'scroll-motion-revealed');
+        const fallback = setTimeout(cleanup, 500);
+        item.addEventListener('transitionend', event => {
+          if (event.propertyName !== 'translate') return;
+          clearTimeout(fallback);
+          cleanup();
+        }, { once: true });
       });
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
     motionTargets.forEach(item => {
-      item.classList.add('scroll-motion-item');
+      // Leave content already in the first viewport alone; it has no entrance
+      // animation to flash in after the page has rendered.
+      if (item.getBoundingClientRect().top <= window.innerHeight) return;
+      item.classList.add('scroll-motion-pending');
       revealObserver.observe(item);
     });
   }
@@ -360,7 +368,7 @@
   const robotLoading = document.querySelector('.robot-progress');
   robotLoading.hidden = false;
   robotStatus.textContent = 'Cargando el modelo 3D del robot.';
-  import('./robot-viewer.js').then(({ createRobotViewer }) => createRobotViewer()).then(() => {
+  import('./robot-viewer.js?v=27').then(({ createRobotViewer }) => createRobotViewer()).then(() => {
     robotStatus.textContent = 'Robot de ruedas con sensores y circuitos. Puede explorarlo con los botones de giro o arrastrándolo.';
   }).catch(() => {
     robotLoading.hidden = true;

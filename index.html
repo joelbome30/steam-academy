@@ -21,8 +21,8 @@
   <link rel="modulepreload" href="vendor/playcanvas.min.mjs">
   <link rel="preload" href="vendor/draco/draco.wasm.js" as="fetch" crossorigin>
   <link rel="preload" href="vendor/draco/draco.wasm.wasm" as="fetch" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=42">
-  <script src="script.js?v=25" defer></script>
+  <link rel="stylesheet" href="styles.css?v=44">
+  <script src="script.js?v=27" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -66,7 +66,12 @@
           <p class="robot-status sr-only" role="status" aria-live="polite">Modelo de un robot de ruedas con sensores y circuitos.</p>
           <div class="robot-controls" role="group" aria-label="Explorar el robot 3D">
             <button type="button" id="robot-left" aria-label="Girar el robot a la izquierda">↶</button>
-            <button type="button" id="robot-pause">Pausar movimiento</button>
+            <button type="button" id="robot-pause" aria-label="Pausar movimiento" aria-pressed="false" title="Pausar movimiento">
+              <svg class="robot-pause-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path class="icon-pause" d="M8 5v14M16 5v14"/>
+                <path class="icon-play" d="m9 5 11 7-11 7z"/>
+              </svg>
+            </button>
             <button type="button" id="robot-right" aria-label="Girar el robot a la derecha">↷</button>
           </div>
         </div>
