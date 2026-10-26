@@ -9,7 +9,7 @@ export async function createRobotViewer() {
   const progressText = host.querySelector('.robot-progress-text');
   const pauseButton = document.querySelector('#robot-pause');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  canvas.style.touchAction = 'pan-y';
+  canvas.style.touchAction = 'none';
 
   const device = await pc.createGraphicsDevice(canvas, {
     deviceTypes: [pc.DEVICETYPE_WEBGL2],
@@ -99,6 +99,8 @@ export async function createRobotViewer() {
 
   const robot = new pc.Entity('Robot pivot');
   app.root.addChild(robot);
+  const tilt = new pc.Entity('Robot tilt');
+  robot.addChild(tilt);
   pc.dracoInitialize({
     jsUrl: './vendor/draco/draco.wasm.js',
     wasmUrl: './vendor/draco/draco.wasm.wasm',
@@ -177,7 +179,7 @@ export async function createRobotViewer() {
     model.setLocalEulerAngles(0, -10.8, 0);
     model.setLocalPosition(0.04, -0.2, 0.1);
     model.setLocalScale(14.65, 14.65, 14.65);
-    robot.addChild(model);
+    tilt.addChild(model);
     setProgress(100);
     loading.hidden = true;
     host.classList.add('scene-ready');
@@ -190,7 +192,7 @@ export async function createRobotViewer() {
   let visible = true, lost = false, paused = false, elapsed = 0, lastMotion = performance.now();
   let lastRendered = 0;
   const intervals = [];
-  const drag = { active: false, lastX: 0, yaw: 0, smoothYaw: 0, pointerId: null };
+  const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0, smoothYaw: 0, smoothPitch: 0, pointerId: null };
   const motionEnabled = () => !paused && !reduced.matches;
   const canRender = () => !document.hidden && visible && !lost;
   function pose(time) {
@@ -198,15 +200,17 @@ export async function createRobotViewer() {
     lastMotion = time;
     if (motionEnabled()) elapsed += dt;
     const t = elapsed;
-    // Ease horizontal input so a pointer jump cannot snap the robot around.
+    // Separate pivots keep yaw vertical while the bounded pitch follows a drag.
     const blend = motionEnabled() ? 1 - Math.exp(-dt * 9) : 1;
     drag.smoothYaw += (drag.yaw - drag.smoothYaw) * blend;
+    drag.smoothPitch += (drag.pitch - drag.smoothPitch) * blend;
     robot.setLocalPosition(0, Math.sin(t * 0.65) * 0.035, 0);
     robot.setLocalEulerAngles(
       0,
       (drag.smoothYaw + (!drag.active ? Math.sin(t * 0.24) * 0.10 : 0)) * 180 / Math.PI,
       0
     );
+    tilt.setLocalEulerAngles(drag.smoothPitch * 180 / Math.PI, 0, 0);
   }
   function requestFrame() {
     if (!canRender()) return;
@@ -272,13 +276,17 @@ export async function createRobotViewer() {
     drag.active = true;
     drag.pointerId = event.pointerId;
     drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
     canvas.setPointerCapture?.(event.pointerId);
   });
   canvas.addEventListener('pointermove', event => {
     if (!drag.active || event.pointerId !== drag.pointerId) return;
     const dx = Math.max(-80, Math.min(80, event.clientX - drag.lastX));
+    const dy = Math.max(-80, Math.min(80, event.clientY - drag.lastY));
     drag.yaw += dx * 0.0015;
+    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch + dy * 0.0015));
     drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
     if (!motionEnabled()) requestFrame();
     if (event.pointerType !== 'touch') event.preventDefault();
   }, { passive: false });
