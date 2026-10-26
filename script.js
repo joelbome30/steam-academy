@@ -368,7 +368,7 @@
   const robotLoading = document.querySelector('.robot-progress');
   robotLoading.hidden = false;
   robotStatus.textContent = 'Cargando el modelo 3D del robot.';
-  import('./robot-viewer.js?v=30').then(({ createRobotViewer }) => createRobotViewer()).then(() => {
+  import('./robot-viewer.js?v=31').then(({ createRobotViewer }) => createRobotViewer()).then(() => {
     robotStatus.textContent = 'Robot de ruedas con sensores y circuitos. Puede explorarlo con los botones de giro o arrastrándolo.';
   }).catch(() => {
     robotLoading.hidden = true;

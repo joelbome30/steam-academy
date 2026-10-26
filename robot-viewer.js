@@ -202,7 +202,7 @@ export async function createRobotViewer() {
     lastMotion = time;
     if (motionEnabled()) elapsed += dt;
     const t = elapsed;
-    // Orbit the camera so an upward drag always raises the view on screen.
+    // Orbit the camera while keeping the robot upright on screen.
     const blend = motionEnabled() ? 1 - Math.exp(-dt * 9) : 1;
     drag.smoothYaw += (drag.yaw - drag.smoothYaw) * blend;
     drag.smoothPitch += (drag.pitch - drag.smoothPitch) * blend;
@@ -290,7 +290,7 @@ export async function createRobotViewer() {
     const dx = Math.max(-80, Math.min(80, event.clientX - drag.lastX));
     const dy = Math.max(-80, Math.min(80, event.clientY - drag.lastY));
     drag.yaw += dx * 0.0015;
-    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch - dy * 0.0015));
+    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch + dy * 0.0015));
     drag.lastX = event.clientX;
     drag.lastY = event.clientY;
     if (!motionEnabled()) requestFrame();
