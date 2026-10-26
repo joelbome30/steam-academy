@@ -207,7 +207,7 @@ export async function createRobotViewer() {
     robot.setLocalPosition(0, Math.sin(t * 0.65) * 0.035, 0);
     robot.setLocalEulerAngles(
       0,
-      (drag.smoothYaw + (!drag.active ? Math.sin(t * 0.24) * 0.10 : 0)) * 180 / Math.PI,
+      (drag.smoothYaw + Math.sin(t * 0.24) * 0.10) * 180 / Math.PI,
       0
     );
     tilt.setLocalEulerAngles(drag.smoothPitch * 180 / Math.PI, 0, 0);
@@ -292,6 +292,9 @@ export async function createRobotViewer() {
   }, { passive: false });
   const stopDrag = event => {
     if (event.pointerId !== drag.pointerId) return;
+    // Stop at the displayed pose instead of finishing a queued turn on release.
+    drag.yaw = drag.smoothYaw;
+    drag.pitch = drag.smoothPitch;
     drag.active = false;
     drag.pointerId = null;
   };
