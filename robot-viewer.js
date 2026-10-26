@@ -99,8 +99,6 @@ export async function createRobotViewer() {
 
   const robot = new pc.Entity('Robot pivot');
   app.root.addChild(robot);
-  const tilt = new pc.Entity('Robot tilt');
-  robot.addChild(tilt);
   pc.dracoInitialize({
     jsUrl: './vendor/draco/draco.wasm.js',
     wasmUrl: './vendor/draco/draco.wasm.wasm',
@@ -179,7 +177,7 @@ export async function createRobotViewer() {
     model.setLocalEulerAngles(0, -10.8, 0);
     model.setLocalPosition(0.04, -0.2, 0.1);
     model.setLocalScale(14.65, 14.65, 14.65);
-    tilt.addChild(model);
+    robot.addChild(model);
     setProgress(100);
     loading.hidden = true;
     host.classList.add('scene-ready');
@@ -191,6 +189,10 @@ export async function createRobotViewer() {
 
   let visible = true, lost = false, paused = false, elapsed = 0, lastMotion = performance.now();
   let lastRendered = 0;
+  const focusY = 0.12;
+  const cameraHeight = 1.1 - focusY;
+  let orbitRadius = Math.hypot(5.7, cameraHeight);
+  let baseElevation = Math.atan2(cameraHeight, 5.7);
   const intervals = [];
   const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0, smoothYaw: 0, smoothPitch: 0, pointerId: null };
   const motionEnabled = () => !paused && !reduced.matches;
@@ -200,17 +202,20 @@ export async function createRobotViewer() {
     lastMotion = time;
     if (motionEnabled()) elapsed += dt;
     const t = elapsed;
-    // Separate pivots keep yaw vertical while the bounded pitch follows a drag.
+    // Orbit the camera so an upward drag always raises the view on screen.
     const blend = motionEnabled() ? 1 - Math.exp(-dt * 9) : 1;
     drag.smoothYaw += (drag.yaw - drag.smoothYaw) * blend;
     drag.smoothPitch += (drag.pitch - drag.smoothPitch) * blend;
     robot.setLocalPosition(0, Math.sin(t * 0.65) * 0.035, 0);
-    robot.setLocalEulerAngles(
-      0,
-      (drag.smoothYaw + Math.sin(t * 0.24) * 0.10) * 180 / Math.PI,
-      0
+    robot.setLocalEulerAngles(0, Math.sin(t * 0.24) * 0.10 * 180 / Math.PI, 0);
+    const elevation = baseElevation + drag.smoothPitch;
+    const horizontal = orbitRadius * Math.cos(elevation);
+    camera.setPosition(
+      -Math.sin(drag.smoothYaw) * horizontal,
+      focusY + orbitRadius * Math.sin(elevation),
+      Math.cos(drag.smoothYaw) * horizontal
     );
-    tilt.setLocalEulerAngles(drag.smoothPitch * 180 / Math.PI, 0, 0);
+    camera.lookAt(0, focusY, 0);
   }
   function requestFrame() {
     if (!canRender()) return;
@@ -233,8 +238,9 @@ export async function createRobotViewer() {
     device.maxPixelRatio = window.devicePixelRatio || 1;
     app.resizeCanvas(width, height);
     camera.camera.aspectRatio = width / height;
-    camera.setPosition(0, 1.1, Math.max(4.9, 5.7 / (width / height)));
-    camera.lookAt(0, 0.12, 0);
+    const horizontal = Math.max(4.9, 5.7 / (width / height));
+    orbitRadius = Math.hypot(horizontal, cameraHeight);
+    baseElevation = Math.atan2(cameraHeight, horizontal);
     requestFrame();
   }
   app.on('update', () => {
@@ -284,7 +290,7 @@ export async function createRobotViewer() {
     const dx = Math.max(-80, Math.min(80, event.clientX - drag.lastX));
     const dy = Math.max(-80, Math.min(80, event.clientY - drag.lastY));
     drag.yaw += dx * 0.0015;
-    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch + dy * 0.0015));
+    drag.pitch = Math.max(-0.35, Math.min(0.35, drag.pitch - dy * 0.0015));
     drag.lastX = event.clientX;
     drag.lastY = event.clientY;
     if (!motionEnabled()) requestFrame();
